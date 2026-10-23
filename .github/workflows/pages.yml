@@ -1,12 +1,11 @@
 # Publica la app en GitHub Pages en cada push a main.
-# Si existe bundle.tgz.b64 (subida inicial desde el navegador), primero lo desempaqueta y lo commitea.
 name: Publicar en GitHub Pages
 on:
   push:
     branches: [main]
   workflow_dispatch:
 permissions:
-  contents: write
+  contents: read
   pages: write
   id-token: write
 concurrency:
@@ -20,16 +19,6 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
-      - name: Desempaquetar subida inicial
-        if: hashFiles('bundle.tgz.b64') != ''
-        run: |
-          base64 -d bundle.tgz.b64 | tar xz
-          git rm -q bundle.tgz.b64
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -A
-          git commit -m "Fase 1: código de la app"
-          git push
       - uses: actions/setup-node@v4
         with:
           node-version: 22
