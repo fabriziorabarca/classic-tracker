@@ -6,6 +6,8 @@ App personal (un solo usuario) para registrar entrenamiento de hipertrofia orien
 
 Fase 1 terminada (pantalla Hoy, registro de un toque, temporizador, reanudación, resumen, respaldo JSON). La siguiente es la Fase 2 de `docs/SPEC.md`.
 
+Rutina vigente: Bloque 2, aprobada por el usuario el 29/10/2026 (`data/seed_exercises.json`, `version: 2`). Cada ejercicio trae `rir_class` (`machine` | `free` | `pain`), `pain_zone` y `calibrate`; el RIR por semana sale de `RIR_BY_CLASS` en `js/domain.js`. Los IDs del Bloque 1 que salieron están en `retired_ids` y la app los marca `active: false` (se conservan para el historial). No cambies ejercicios, series ni RIR sin que el usuario lo apruebe.
+
 ## Stack (sin dependencias ni paso de build)
 
 - HTML + CSS + JavaScript en módulos ES nativos. No agregar frameworks ni bundlers sin pedirlo.

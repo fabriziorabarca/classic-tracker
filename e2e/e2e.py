@@ -107,10 +107,32 @@ def main():
         page.goto(BASE + "?date=2026-11-07")
         expect(page.get_by_role("heading", name="Descanso")).to_be_visible()
 
+        # 7b. Jueves de la semana 1: rutina nueva, zona sensible y calibración
+        page.goto(BASE + "?date=2026-10-29")
+        page.click("[data-action=checkin-skip]")
+        expect(page.get_by_role("heading", name="Jueves · Pierna B")).to_be_visible()
+        expect(page.locator("#ex-N4")).to_contain_text("Hip thrust")
+        expect(page.locator("#ex-N4 .badge.warn")).to_contain_text("Cadera izq.")
+        expect(page.locator("[data-key='N7:3'] .cal")).to_be_visible()
+        expect(page.locator("[data-key='N7:2'] .cal")).to_have_count(0)
+        page.locator("#ex-N7").scroll_into_view_if_needed()
+        page.screenshot(path=str(SHOTS / "04b_calibracion.png"))
+        for n in (1, 2):
+            page.click(f"[data-action=edit-load][data-key='N7:{n}']")
+            log(page, "N7", n)
+        page.click("[data-action=edit-load][data-key='N7:3']")
+        page.click("[data-action=log][data-ex=N7][data-n='3']")
+        expect(page.locator("#toast")).to_contain_text("Calibración")
+        page.click("[data-action=rir-pred][data-key='N7:3'][data-v='1']")
+        page.click("[data-action=reps-extra][data-key='N7:3'][data-v='3']")
+        log(page, "N7", 3)
+        page.click("[data-tab=progreso]")
+        expect(page.get_by_text("te quedaban 2 repeticiones más")).to_be_visible()
+
         # 8. Historial, progreso y respaldo
         page.goto(BASE + "?date=2026-11-02")
         page.click("[data-tab=historial]")
-        expect(page.locator("details")).to_have_count(1)
+        expect(page.locator("details")).to_have_count(2)
         page.click("[data-tab=progreso]")
         expect(page.locator("table")).to_contain_text("Press inclinado")
         page.screenshot(path=str(SHOTS / "05_progreso.png"))
@@ -119,7 +141,7 @@ def main():
             page.click("[data-action=export]")
         path = dl.value.path()
         data = json.loads(Path(path).read_text())
-        assert len([s for s in data["sets"] if not s.get("deleted_at")]) == 18, "el respaldo debe tener 18 series"
+        assert len([s for s in data["sets"] if not s.get("deleted_at")]) == 21, "el respaldo debe tener 18 + 3 series"
         assert len(data["exercises"]) == 32
         page.screenshot(path=str(SHOTS / "06_yo.png"))
 
@@ -133,7 +155,34 @@ def main():
         p2.click("[data-tab=yo]")
         p2.set_input_files("#import", path)
         p2.click("[data-tab=historial]")
-        expect(p2.locator("details")).to_have_count(1)
+        expect(p2.locator("details")).to_have_count(2)
+
+        # 10. Migración: quien tenía la rutina del Bloque 1 pasa al Bloque 2 y deja de ver lo retirado
+        ctx3 = browser.new_context(viewport={"width": 393, "height": 851}, is_mobile=True, has_touch=True)
+        p3 = ctx3.new_page()
+        p3.on("pageerror", lambda e: errors.append(str(e)))
+        p3.goto(BASE + "?date=2026-10-29")
+        expect(p3.get_by_text("Bienvenido")).to_be_visible()
+        p3.evaluate("""() => new Promise((ok, ko) => {
+          const r = indexedDB.open('classic-tracker', 1);
+          r.onsuccess = () => {
+            const tx = r.result.transaction(['meta', 'exercises'], 'readwrite');
+            tx.objectStore('meta').put({ key: 'seedVersion', value: 1 });
+            tx.objectStore('meta').put({ key: 'block', value: { number: 1, start: '2026-10-26' } });
+            tx.objectStore('exercises').put({ id: 'X1', day: 'Miércoles', order: 1, name: 'Press de hombro sentado con mancuernas',
+              target: 'Deltoides anterior', base_sets: 3, rep_min: 6, rep_max: 10, rest_sec_min: 120, rest_sec_max: 180,
+              priority: false, load_step_kg: 1, muscle_factors: {}, substitutes: [] });
+            tx.oncomplete = () => ok(); tx.onerror = () => ko(tx.error);
+          };
+        })""")
+        p3.reload()
+        expect(p3.locator("#toast")).to_contain_text("Bloque 2")
+        expect(p3.get_by_text("Tu Bloque 2 empieza el 02/11/2026")).to_be_visible()
+        p3.goto(BASE + "?date=2026-11-04")
+        p3.click("[data-action=checkin-skip]")
+        expect(p3.get_by_role("heading", name="Miércoles · Torso B")).to_be_visible()
+        expect(p3.get_by_text("Press de hombro sentado")).to_have_count(0)
+        expect(p3.locator("#ex-N2")).to_contain_text("Patada de tríceps")
 
         assert not errors, f"errores de JavaScript: {errors}"
         browser.close()

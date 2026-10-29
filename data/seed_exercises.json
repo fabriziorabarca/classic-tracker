@@ -1,743 +1,879 @@
 {
-  "block_template": {
-    "weeks": 6,
-    "rir_by_week": [
-      3,
-      2,
-      2,
-      1,
-      1,
-      4
+ "version": 2,
+ "routine": "Bloque 2 · aprobado el 29/10/2026",
+ "block_template": {
+  "weeks": 6,
+  "rir_by_class": {
+   "machine": {
+    "target": [
+     3,
+     2,
+     2,
+     1,
+     1,
+     4
     ],
-    "priority_extra_set_weeks": [
-      3,
-      4,
-      5
+    "label": [
+     "3",
+     "2",
+     "1–2",
+     "1",
+     "0–1",
+     "3–4"
+    ]
+   },
+   "free": {
+    "target": [
+     3,
+     2,
+     2,
+     2,
+     1,
+     4
     ],
-    "deload_week": 6,
-    "deload_rule": "ceil(sets_week5/2)"
+    "label": [
+     "3",
+     "2",
+     "2",
+     "1–2",
+     "1",
+     "3–4"
+    ]
+   },
+   "pain": {
+    "target": [
+     3,
+     2,
+     2,
+     2,
+     2,
+     4
+    ],
+    "label": [
+     "3",
+     "2",
+     "2",
+     "2",
+     "2",
+     "3–4"
+    ]
+   }
   },
-  "exercises": [
-    {
-      "id": "L1",
-      "day": "Lunes",
-      "order": 1,
-      "name": "Press inclinado con mancuernas a 30°",
-      "target": "Pectoral mayor clavicular",
-      "synergists": "Deltoides anterior, tríceps",
-      "base_sets": 3,
-      "rep_min": 6,
-      "rep_max": 10,
-      "rest_sec_min": 120,
-      "rest_sec_max": 180,
-      "priority": true,
-      "load_step_kg": 1.0,
-      "muscle_factors": {
-        "Pecho": 1,
-        "Deltoides anterior": 0.5,
-        "Tríceps": 0.5
-      },
-      "substitutes": [
-        "Press inclinado en Smith a 30°",
-        "Press inclinado en máquina"
-      ]
-    },
-    {
-      "id": "L2",
-      "day": "Lunes",
-      "order": 2,
-      "name": "Jalón al pecho, agarre neutro",
-      "target": "Dorsal ancho",
-      "synergists": "Redondo mayor, bíceps, braquial, trapecio inferior, romboides",
-      "base_sets": 3,
-      "rep_min": 8,
-      "rep_max": 12,
-      "rest_sec_min": 120,
-      "rest_sec_max": 120,
-      "priority": true,
-      "load_step_kg": 2.5,
-      "muscle_factors": {
-        "Dorsal y espalda": 1,
-        "Bíceps": 0.5
-      },
-      "substitutes": [
-        "Jalón al pecho, agarre medio prono",
-        "Jalón unilateral en polea"
-      ]
-    },
-    {
-      "id": "L3",
-      "day": "Lunes",
-      "order": 3,
-      "name": "Press de pecho en máquina",
-      "target": "Pectoral mayor esternal",
-      "synergists": "Deltoides anterior, tríceps",
-      "base_sets": 2,
-      "rep_min": 8,
-      "rep_max": 12,
-      "rest_sec_min": 120,
-      "rest_sec_max": 120,
-      "priority": false,
-      "load_step_kg": 2.5,
-      "muscle_factors": {
-        "Pecho": 1,
-        "Deltoides anterior": 0.5,
-        "Tríceps": 0.5
-      },
-      "substitutes": [
-        "Press plano con mancuernas",
-        "Press plano en Smith"
-      ]
-    },
-    {
-      "id": "L4",
-      "day": "Lunes",
-      "order": 4,
-      "name": "Remo sentado en polea, agarre neutro",
-      "target": "Dorsal, romboides, trapecio medio",
-      "synergists": "Deltoides posterior, bíceps, braquial",
-      "base_sets": 3,
-      "rep_min": 8,
-      "rep_max": 12,
-      "rest_sec_min": 120,
-      "rest_sec_max": 120,
-      "priority": false,
-      "load_step_kg": 2.5,
-      "muscle_factors": {
-        "Dorsal y espalda": 1,
-        "Deltoides posterior": 0.5,
-        "Bíceps": 0.5
-      },
-      "substitutes": [
-        "Remo en máquina con apoyo de pecho",
-        "Remo unilateral con mancuerna"
-      ]
-    },
-    {
-      "id": "L5",
-      "day": "Lunes",
-      "order": 5,
-      "name": "Elevación lateral en polea a una mano",
-      "target": "Deltoides lateral",
-      "synergists": "Supraespinoso, trapecio superior",
-      "base_sets": 3,
-      "rep_min": 10,
-      "rep_max": 20,
-      "rest_sec_min": 90,
-      "rest_sec_max": 90,
-      "priority": true,
-      "load_step_kg": 1.0,
-      "muscle_factors": {
-        "Deltoides lateral": 1
-      },
-      "substitutes": [
-        "Elevación lateral con mancuernas",
-        "Elevación lateral en máquina"
-      ]
-    },
-    {
-      "id": "L6",
-      "day": "Lunes",
-      "order": 6,
-      "name": "Curl inclinado con mancuernas",
-      "target": "Bíceps (cabeza larga)",
-      "synergists": "Braquial, braquiorradial",
-      "base_sets": 2,
-      "rep_min": 8,
-      "rep_max": 12,
-      "rest_sec_min": 90,
-      "rest_sec_max": 90,
-      "priority": false,
-      "load_step_kg": 1.0,
-      "muscle_factors": {
-        "Bíceps": 1
-      },
-      "substitutes": [
-        "Curl bayesiano en polea",
-        "Curl con mancuernas de pie"
-      ]
-    },
-    {
-      "id": "L7",
-      "day": "Lunes",
-      "order": 7,
-      "name": "Extensión de tríceps sobre la cabeza en polea",
-      "target": "Tríceps (cabeza larga)",
-      "synergists": "Ancóneo",
-      "base_sets": 2,
-      "rep_min": 8,
-      "rep_max": 12,
-      "rest_sec_min": 90,
-      "rest_sec_max": 90,
-      "priority": false,
-      "load_step_kg": 1.0,
-      "muscle_factors": {
-        "Tríceps": 1
-      },
-      "substitutes": [
-        "Extensión sobre la cabeza con mancuerna",
-        "Extensión de tríceps sobre la cabeza en máquina"
-      ]
-    },
-    {
-      "id": "M1",
-      "day": "Martes",
-      "order": 1,
-      "name": "Sentadilla hack (o con barra profunda)",
-      "target": "Cuádriceps",
-      "synergists": "Glúteo mayor, aductor mayor, sóleo; erectores estabilizan",
-      "base_sets": 3,
-      "rep_min": 6,
-      "rep_max": 10,
-      "rest_sec_min": 180,
-      "rest_sec_max": 180,
-      "priority": true,
-      "load_step_kg": 2.5,
-      "muscle_factors": {
-        "Cuádriceps": 1,
-        "Glúteo": 0.5,
-        "Aductores": 0.5
-      },
-      "substitutes": [
-        "Sentadilla péndulo",
-        "Prensa de piernas profunda"
-      ]
-    },
-    {
-      "id": "M2",
-      "day": "Martes",
-      "order": 2,
-      "name": "Peso muerto rumano",
-      "target": "Isquiotibiales, glúteo mayor",
-      "synergists": "Aductor mayor; erectores en isométrico",
-      "base_sets": 3,
-      "rep_min": 6,
-      "rep_max": 10,
-      "rest_sec_min": 180,
-      "rest_sec_max": 180,
-      "priority": false,
-      "load_step_kg": 2.5,
-      "muscle_factors": {
-        "Isquiotibiales": 1,
-        "Glúteo": 1,
-        "Aductores": 0.5
-      },
-      "substitutes": [
-        "Peso muerto rumano con mancuernas",
-        "Hiperextensión a 45° con énfasis en isquios"
-      ]
-    },
-    {
-      "id": "M3",
-      "day": "Martes",
-      "order": 3,
-      "name": "Extensión de cuádriceps con respaldo reclinado",
-      "target": "Cuádriceps (incl. recto femoral)",
-      "synergists": "—",
-      "base_sets": 3,
-      "rep_min": 10,
-      "rep_max": 15,
-      "rest_sec_min": 90,
-      "rest_sec_max": 90,
-      "priority": false,
-      "load_step_kg": 1.0,
-      "muscle_factors": {
-        "Cuádriceps": 1
-      },
-      "substitutes": [
-        "Extensión de cuádriceps unilateral"
-      ]
-    },
-    {
-      "id": "M4",
-      "day": "Martes",
-      "order": 4,
-      "name": "Curl femoral sentado",
-      "target": "Isquiotibiales",
-      "synergists": "Gastrocnemio, sartorio, grácil",
-      "base_sets": 3,
-      "rep_min": 8,
-      "rep_max": 12,
-      "rest_sec_min": 90,
-      "rest_sec_max": 90,
-      "priority": false,
-      "load_step_kg": 1.0,
-      "muscle_factors": {
-        "Isquiotibiales": 1
-      },
-      "substitutes": [
-        "Curl femoral tumbado",
-        "Curl femoral unilateral de pie"
-      ]
-    },
-    {
-      "id": "M5",
-      "day": "Martes",
-      "order": 5,
-      "name": "Elevación de talones de pie",
-      "target": "Gastrocnemio",
-      "synergists": "Sóleo",
-      "base_sets": 4,
-      "rep_min": 8,
-      "rep_max": 15,
-      "rest_sec_min": 90,
-      "rest_sec_max": 90,
-      "priority": false,
-      "load_step_kg": 2.5,
-      "muscle_factors": {
-        "Pantorrilla": 1
-      },
-      "substitutes": [
-        "Elevación de talones en prensa",
-        "Elevación de talones en Smith"
-      ]
-    },
-    {
-      "id": "M6",
-      "day": "Martes",
-      "order": 6,
-      "name": "Crunch en polea",
-      "target": "Recto abdominal",
-      "synergists": "Oblicuos",
-      "base_sets": 3,
-      "rep_min": 10,
-      "rep_max": 15,
-      "rest_sec_min": 60,
-      "rest_sec_max": 90,
-      "priority": false,
-      "load_step_kg": 2.5,
-      "muscle_factors": {
-        "Abdomen": 1
-      },
-      "substitutes": [
-        "Crunch en máquina",
-        "Crunch con disco en banco declinado"
-      ]
-    },
-    {
-      "id": "X1",
-      "day": "Miércoles",
-      "order": 1,
-      "name": "Press de hombro sentado con mancuernas",
-      "target": "Deltoides anterior",
-      "synergists": "Deltoides lateral, tríceps, pectoral clavicular, serrato anterior",
-      "base_sets": 3,
-      "rep_min": 6,
-      "rep_max": 10,
-      "rest_sec_min": 120,
-      "rest_sec_max": 180,
-      "priority": false,
-      "load_step_kg": 1.0,
-      "muscle_factors": {
-        "Deltoides anterior": 1,
-        "Deltoides lateral": 0.5,
-        "Tríceps": 0.5
-      },
-      "substitutes": [
-        "Press de hombro en máquina",
-        "Press de hombro sentado en Smith, por delante"
-      ]
-    },
-    {
-      "id": "X2",
-      "day": "Miércoles",
-      "order": 2,
-      "name": "Press inclinado en máquina o Smith a 30°",
-      "target": "Pectoral mayor clavicular",
-      "synergists": "Deltoides anterior, tríceps",
-      "base_sets": 3,
-      "rep_min": 8,
-      "rep_max": 12,
-      "rest_sec_min": 120,
-      "rest_sec_max": 120,
-      "priority": true,
-      "load_step_kg": 2.5,
-      "muscle_factors": {
-        "Pecho": 1,
-        "Deltoides anterior": 0.5,
-        "Tríceps": 0.5
-      },
-      "substitutes": [
-        "Press inclinado con mancuernas a 30°"
-      ]
-    },
-    {
-      "id": "X3",
-      "day": "Miércoles",
-      "order": 3,
-      "name": "Aperturas en polea o pec deck",
-      "target": "Pectoral mayor",
-      "synergists": "Deltoides anterior, coracobraquial",
-      "base_sets": 2,
-      "rep_min": 10,
-      "rep_max": 15,
-      "rest_sec_min": 90,
-      "rest_sec_max": 90,
-      "priority": false,
-      "load_step_kg": 1.0,
-      "muscle_factors": {
-        "Pecho": 1
-      },
-      "substitutes": [
-        "Aperturas con mancuernas en banco plano"
-      ]
-    },
-    {
-      "id": "X4",
-      "day": "Miércoles",
-      "order": 4,
-      "name": "Elevación lateral con mancuernas",
-      "target": "Deltoides lateral",
-      "synergists": "Supraespinoso, trapecio superior",
-      "base_sets": 4,
-      "rep_min": 12,
-      "rep_max": 20,
-      "rest_sec_min": 90,
-      "rest_sec_max": 90,
-      "priority": true,
-      "load_step_kg": 1.0,
-      "muscle_factors": {
-        "Deltoides lateral": 1
-      },
-      "substitutes": [
-        "Elevación lateral en polea",
-        "Elevación lateral en máquina"
-      ]
-    },
-    {
-      "id": "X5",
-      "day": "Miércoles",
-      "order": 5,
-      "name": "Press francés con barra EZ",
-      "target": "Tríceps",
-      "synergists": "Ancóneo",
-      "base_sets": 2,
-      "rep_min": 8,
-      "rep_max": 12,
-      "rest_sec_min": 90,
-      "rest_sec_max": 90,
-      "priority": false,
-      "load_step_kg": 2.5,
-      "muscle_factors": {
-        "Tríceps": 1
-      },
-      "substitutes": [
-        "Extensión de tríceps tumbado con mancuernas",
-        "Extensión de tríceps en máquina"
-      ]
-    },
-    {
-      "id": "X6",
-      "day": "Miércoles",
-      "order": 6,
-      "name": "Pushdown con cuerda",
-      "target": "Tríceps (cabezas lateral y medial)",
-      "synergists": "Ancóneo",
-      "base_sets": 2,
-      "rep_min": 10,
-      "rep_max": 15,
-      "rest_sec_min": 60,
-      "rest_sec_max": 90,
-      "priority": false,
-      "load_step_kg": 1.0,
-      "muscle_factors": {
-        "Tríceps": 1
-      },
-      "substitutes": [
-        "Pushdown con barra V",
-        "Pushdown unilateral en polea"
-      ]
-    },
-    {
-      "id": "J1",
-      "day": "Jueves",
-      "order": 1,
-      "name": "Dominadas (lastradas o asistidas)",
-      "target": "Dorsal ancho",
-      "synergists": "Redondo mayor, bíceps, braquial, trapecio inferior, romboides",
-      "base_sets": 3,
-      "rep_min": 6,
-      "rep_max": 10,
-      "rest_sec_min": 120,
-      "rest_sec_max": 180,
-      "priority": true,
-      "load_step_kg": 2.5,
-      "muscle_factors": {
-        "Dorsal y espalda": 1,
-        "Bíceps": 0.5
-      },
-      "substitutes": [
-        "Jalón al pecho, agarre medio",
-        "Jalón unilateral arrodillado"
-      ]
-    },
-    {
-      "id": "J2",
-      "day": "Jueves",
-      "order": 2,
-      "name": "Remo con pecho apoyado (barra T o máquina)",
-      "target": "Espalda media, dorsal",
-      "synergists": "Deltoides posterior, bíceps, braquial",
-      "base_sets": 3,
-      "rep_min": 8,
-      "rep_max": 12,
-      "rest_sec_min": 120,
-      "rest_sec_max": 120,
-      "priority": false,
-      "load_step_kg": 2.5,
-      "muscle_factors": {
-        "Dorsal y espalda": 1,
-        "Deltoides posterior": 0.5,
-        "Bíceps": 0.5
-      },
-      "substitutes": [
-        "Remo con mancuernas apoyado en banco inclinado",
-        "Remo sentado en polea"
-      ]
-    },
-    {
-      "id": "J3",
-      "day": "Jueves",
-      "order": 3,
-      "name": "Pullover en polea, brazos semiextendidos",
-      "target": "Dorsal ancho",
-      "synergists": "Redondo mayor, cabeza larga del tríceps",
-      "base_sets": 2,
-      "rep_min": 10,
-      "rep_max": 15,
-      "rest_sec_min": 90,
-      "rest_sec_max": 90,
-      "priority": false,
-      "load_step_kg": 1.0,
-      "muscle_factors": {
-        "Dorsal y espalda": 1
-      },
-      "substitutes": [
-        "Pullover con mancuerna en banco",
-        "Pullover en máquina"
-      ]
-    },
-    {
-      "id": "J4",
-      "day": "Jueves",
-      "order": 4,
-      "name": "Pec deck invertido",
-      "target": "Deltoides posterior",
-      "synergists": "Trapecio medio, romboides, infraespinoso, redondo menor",
-      "base_sets": 3,
-      "rep_min": 12,
-      "rep_max": 20,
-      "rest_sec_min": 90,
-      "rest_sec_max": 90,
-      "priority": false,
-      "load_step_kg": 1.0,
-      "muscle_factors": {
-        "Deltoides posterior": 1
-      },
-      "substitutes": [
-        "Face pull en polea",
-        "Aperturas posteriores con mancuernas en banco inclinado"
-      ]
-    },
-    {
-      "id": "J5",
-      "day": "Jueves",
-      "order": 5,
-      "name": "Curl predicador (Scott)",
-      "target": "Bíceps",
-      "synergists": "Braquial, braquiorradial",
-      "base_sets": 2,
-      "rep_min": 8,
-      "rep_max": 12,
-      "rest_sec_min": 90,
-      "rest_sec_max": 90,
-      "priority": false,
-      "load_step_kg": 1.0,
-      "muscle_factors": {
-        "Bíceps": 1
-      },
-      "substitutes": [
-        "Curl predicador en máquina",
-        "Curl predicador unilateral con mancuerna"
-      ]
-    },
-    {
-      "id": "J6",
-      "day": "Jueves",
-      "order": 6,
-      "name": "Curl martillo",
-      "target": "Braquial, braquiorradial",
-      "synergists": "Bíceps",
-      "base_sets": 2,
-      "rep_min": 10,
-      "rep_max": 15,
-      "rest_sec_min": 60,
-      "rest_sec_max": 90,
-      "priority": false,
-      "load_step_kg": 1.0,
-      "muscle_factors": {
-        "Bíceps": 1
-      },
-      "substitutes": [
-        "Curl martillo en polea con cuerda",
-        "Curl inverso con barra EZ"
-      ]
-    },
-    {
-      "id": "V1",
-      "day": "Viernes",
-      "order": 1,
-      "name": "Prensa de piernas profunda",
-      "target": "Cuádriceps",
-      "synergists": "Glúteo mayor, aductor mayor",
-      "base_sets": 3,
-      "rep_min": 8,
-      "rep_max": 12,
-      "rest_sec_min": 120,
-      "rest_sec_max": 180,
-      "priority": true,
-      "load_step_kg": 2.5,
-      "muscle_factors": {
-        "Cuádriceps": 1,
-        "Glúteo": 0.5,
-        "Aductores": 0.5
-      },
-      "substitutes": [
-        "Sentadilla hack",
-        "Sentadilla péndulo"
-      ]
-    },
-    {
-      "id": "V2",
-      "day": "Viernes",
-      "order": 2,
-      "name": "Sentadilla búlgara con mancuernas (por pierna)",
-      "target": "Glúteo mayor, cuádriceps",
-      "synergists": "Aductor mayor; glúteo medio estabiliza",
-      "base_sets": 3,
-      "rep_min": 8,
-      "rep_max": 12,
-      "rest_sec_min": 120,
-      "rest_sec_max": 120,
-      "priority": false,
-      "load_step_kg": 1.0,
-      "muscle_factors": {
-        "Cuádriceps": 1,
-        "Glúteo": 1,
-        "Aductores": 0.5
-      },
-      "substitutes": [
-        "Zancada inversa con mancuernas",
-        "Hip thrust con barra"
-      ]
-    },
-    {
-      "id": "V3",
-      "day": "Viernes",
-      "order": 3,
-      "name": "Curl femoral tumbado",
-      "target": "Isquiotibiales",
-      "synergists": "Gastrocnemio",
-      "base_sets": 3,
-      "rep_min": 10,
-      "rep_max": 15,
-      "rest_sec_min": 90,
-      "rest_sec_max": 90,
-      "priority": false,
-      "load_step_kg": 1.0,
-      "muscle_factors": {
-        "Isquiotibiales": 1
-      },
-      "substitutes": [
-        "Curl femoral sentado",
-        "Curl femoral unilateral de pie"
-      ]
-    },
-    {
-      "id": "V4",
-      "day": "Viernes",
-      "order": 4,
-      "name": "Aducción en máquina",
-      "target": "Aductores",
-      "synergists": "Pectíneo, grácil",
-      "base_sets": 2,
-      "rep_min": 10,
-      "rep_max": 15,
-      "rest_sec_min": 90,
-      "rest_sec_max": 90,
-      "priority": false,
-      "load_step_kg": 2.5,
-      "muscle_factors": {
-        "Aductores": 1
-      },
-      "substitutes": [
-        "Aducción en polea"
-      ]
-    },
-    {
-      "id": "V5",
-      "day": "Viernes",
-      "order": 5,
-      "name": "Elevación de talones sentado",
-      "target": "Sóleo",
-      "synergists": "Gastrocnemio (poco)",
-      "base_sets": 4,
-      "rep_min": 10,
-      "rep_max": 20,
-      "rest_sec_min": 60,
-      "rest_sec_max": 90,
-      "priority": false,
-      "load_step_kg": 2.5,
-      "muscle_factors": {
-        "Pantorrilla": 1
-      },
-      "substitutes": [
-        "Elevación de talones sentado con disco en banco"
-      ]
-    },
-    {
-      "id": "V6",
-      "day": "Viernes",
-      "order": 6,
-      "name": "Elevación lateral en máquina",
-      "target": "Deltoides lateral",
-      "synergists": "Supraespinoso",
-      "base_sets": 3,
-      "rep_min": 12,
-      "rep_max": 20,
-      "rest_sec_min": 60,
-      "rest_sec_max": 90,
-      "priority": true,
-      "load_step_kg": 1.0,
-      "muscle_factors": {
-        "Deltoides lateral": 1
-      },
-      "substitutes": [
-        "Elevación lateral en polea",
-        "Elevación lateral con mancuernas"
-      ]
-    },
-    {
-      "id": "V7",
-      "day": "Viernes",
-      "order": 7,
-      "name": "Elevación de piernas colgado",
-      "target": "Recto abdominal",
-      "synergists": "Psoas ilíaco, oblicuos",
-      "base_sets": 3,
-      "rep_min": 10,
-      "rep_max": 15,
-      "rest_sec_min": 60,
-      "rest_sec_max": 90,
-      "priority": false,
-      "load_step_kg": 2.5,
-      "muscle_factors": {
-        "Abdomen": 1
-      },
-      "substitutes": [
-        "Crunch inverso en banco",
-        "Elevación de rodillas en silla romana"
-      ]
-    }
+  "priority_extra_set_weeks": [
+   3,
+   4,
+   5
+  ],
+  "deload_week": 6,
+  "deload_rule": "ceil(sets_week5/2), misma carga (provisional)",
+  "calibration_weeks": [
+   1,
+   2
   ]
+ },
+ "retired_ids": [
+  "J5",
+  "J6",
+  "L6",
+  "L7",
+  "V2",
+  "V4",
+  "V7",
+  "X1",
+  "X2",
+  "X5"
+ ],
+ "exercises": [
+  {
+   "id": "L2",
+   "day": "Lunes",
+   "order": 1,
+   "name": "Jalón al pecho, agarre neutro",
+   "target": "Dorsal",
+   "synergists": "Bíceps",
+   "base_sets": 3,
+   "rep_min": 8,
+   "rep_max": 12,
+   "rest_sec_min": 120,
+   "rest_sec_max": 180,
+   "priority": true,
+   "load_step_kg": 2.5,
+   "muscle_factors": {
+    "Dorsal": 1,
+    "Bíceps": 0.5
+   },
+   "substitutes": [
+    "Jalón con agarre neutro estrecho",
+    "Remo unilateral en polea, codo hacia la cadera"
+   ],
+   "rir_class": "pain",
+   "pain_zone": "Hombro",
+   "calibrate": false
+  },
+  {
+   "id": "L1",
+   "day": "Lunes",
+   "order": 2,
+   "name": "Press inclinado con mancuernas a 30°",
+   "target": "Pectoral clavicular",
+   "synergists": "Tríceps, deltoides anterior",
+   "base_sets": 3,
+   "rep_min": 6,
+   "rep_max": 10,
+   "rest_sec_min": 120,
+   "rest_sec_max": 180,
+   "priority": false,
+   "load_step_kg": 1.0,
+   "muscle_factors": {
+    "Pecho": 1,
+    "Tríceps": 0.5,
+    "Deltoides anterior": 0.5
+   },
+   "substitutes": [
+    "Press inclinado en máquina, agarre neutro"
+   ],
+   "rir_class": "pain",
+   "pain_zone": "Hombro",
+   "calibrate": false
+  },
+  {
+   "id": "J2",
+   "day": "Lunes",
+   "order": 3,
+   "name": "Remo con pecho apoyado (máquina o barra T)",
+   "target": "Espalda media",
+   "synergists": "Dorsal, bíceps, deltoides posterior",
+   "base_sets": 3,
+   "rep_min": 8,
+   "rep_max": 12,
+   "rest_sec_min": 120,
+   "rest_sec_max": 120,
+   "priority": false,
+   "load_step_kg": 2.5,
+   "muscle_factors": {
+    "Espalda media": 1,
+    "Dorsal": 0.5,
+    "Bíceps": 0.5,
+    "Deltoides posterior": 0.5
+   },
+   "substitutes": [
+    "Remo sentado en polea",
+    "Remo con mancuernas apoyado en banco inclinado"
+   ],
+   "rir_class": "machine",
+   "pain_zone": null,
+   "calibrate": false
+  },
+  {
+   "id": "L5",
+   "day": "Lunes",
+   "order": 4,
+   "name": "Elevación lateral en polea a una mano",
+   "target": "Deltoides lateral",
+   "synergists": "—",
+   "base_sets": 3,
+   "rep_min": 12,
+   "rep_max": 20,
+   "rest_sec_min": 90,
+   "rest_sec_max": 90,
+   "priority": false,
+   "load_step_kg": 1.0,
+   "muscle_factors": {
+    "Deltoides lateral": 1
+   },
+   "substitutes": [
+    "Elevación lateral en máquina, sin pasar la horizontal"
+   ],
+   "rir_class": "machine",
+   "pain_zone": null,
+   "calibrate": false
+  },
+  {
+   "id": "X6",
+   "day": "Lunes",
+   "order": 5,
+   "name": "Pushdown con cuerda",
+   "target": "Tríceps",
+   "synergists": "—",
+   "base_sets": 3,
+   "rep_min": 10,
+   "rep_max": 15,
+   "rest_sec_min": 90,
+   "rest_sec_max": 90,
+   "priority": true,
+   "load_step_kg": 1.0,
+   "muscle_factors": {
+    "Tríceps": 1
+   },
+   "substitutes": [
+    "Pushdown con agarre inverso, más ligero"
+   ],
+   "rir_class": "pain",
+   "pain_zone": "Codo",
+   "calibrate": false
+  },
+  {
+   "id": "M6",
+   "day": "Lunes",
+   "order": 6,
+   "name": "Crunch en polea",
+   "target": "Abdomen",
+   "synergists": "—",
+   "base_sets": 3,
+   "rep_min": 10,
+   "rep_max": 15,
+   "rest_sec_min": 90,
+   "rest_sec_max": 90,
+   "priority": false,
+   "load_step_kg": 2.5,
+   "muscle_factors": {
+    "Abdomen": 1
+   },
+   "substitutes": [
+    "Crunch en máquina"
+   ],
+   "rir_class": "machine",
+   "pain_zone": null,
+   "calibrate": false
+  },
+  {
+   "id": "V1",
+   "day": "Martes",
+   "order": 1,
+   "name": "Prensa de piernas, profundidad sin dolor de cadera",
+   "target": "Cuádriceps",
+   "synergists": "Glúteo",
+   "base_sets": 3,
+   "rep_min": 8,
+   "rep_max": 12,
+   "rest_sec_min": 120,
+   "rest_sec_max": 180,
+   "priority": false,
+   "load_step_kg": 2.5,
+   "muscle_factors": {
+    "Cuádriceps": 1,
+    "Glúteo": 0.5
+   },
+   "substitutes": [
+    "Prensa con menos profundidad y pies más altos",
+    "Extensión de cuádriceps"
+   ],
+   "rir_class": "pain",
+   "pain_zone": "Cadera izq.",
+   "calibrate": false
+  },
+  {
+   "id": "M2",
+   "day": "Martes",
+   "order": 2,
+   "name": "Peso muerto rumano con mancuernas",
+   "target": "Isquiotibiales",
+   "synergists": "Glúteo",
+   "base_sets": 3,
+   "rep_min": 8,
+   "rep_max": 12,
+   "rest_sec_min": 120,
+   "rest_sec_max": 180,
+   "priority": false,
+   "load_step_kg": 2.5,
+   "muscle_factors": {
+    "Isquiotibiales": 1,
+    "Glúteo": 0.5
+   },
+   "substitutes": [
+    "Curl femoral (una serie extra)"
+   ],
+   "rir_class": "pain",
+   "pain_zone": "Cadera izq.",
+   "calibrate": false
+  },
+  {
+   "id": "M3",
+   "day": "Martes",
+   "order": 3,
+   "name": "Extensión de cuádriceps, respaldo reclinado",
+   "target": "Cuádriceps",
+   "synergists": "—",
+   "base_sets": 3,
+   "rep_min": 10,
+   "rep_max": 15,
+   "rest_sec_min": 90,
+   "rest_sec_max": 90,
+   "priority": false,
+   "load_step_kg": 1.0,
+   "muscle_factors": {
+    "Cuádriceps": 1
+   },
+   "substitutes": [
+    "Extensión de cuádriceps unilateral"
+   ],
+   "rir_class": "machine",
+   "pain_zone": null,
+   "calibrate": true
+  },
+  {
+   "id": "M4",
+   "day": "Martes",
+   "order": 4,
+   "name": "Curl femoral sentado",
+   "target": "Isquiotibiales",
+   "synergists": "—",
+   "base_sets": 3,
+   "rep_min": 10,
+   "rep_max": 15,
+   "rest_sec_min": 90,
+   "rest_sec_max": 90,
+   "priority": false,
+   "load_step_kg": 1.0,
+   "muscle_factors": {
+    "Isquiotibiales": 1
+   },
+   "substitutes": [
+    "Curl femoral tumbado"
+   ],
+   "rir_class": "machine",
+   "pain_zone": null,
+   "calibrate": true
+  },
+  {
+   "id": "M5",
+   "day": "Martes",
+   "order": 5,
+   "name": "Elevación de talones de pie",
+   "target": "Pantorrillas",
+   "synergists": "—",
+   "base_sets": 3,
+   "rep_min": 10,
+   "rep_max": 15,
+   "rest_sec_min": 90,
+   "rest_sec_max": 90,
+   "priority": false,
+   "load_step_kg": 2.5,
+   "muscle_factors": {
+    "Pantorrillas": 1
+   },
+   "substitutes": [
+    "Elevación de talones en prensa"
+   ],
+   "rir_class": "machine",
+   "pain_zone": null,
+   "calibrate": false
+  },
+  {
+   "id": "V6",
+   "day": "Martes",
+   "order": 6,
+   "name": "Elevación lateral en máquina",
+   "target": "Deltoides lateral",
+   "synergists": "—",
+   "base_sets": 3,
+   "rep_min": 12,
+   "rep_max": 20,
+   "rest_sec_min": 90,
+   "rest_sec_max": 90,
+   "priority": true,
+   "load_step_kg": 1.0,
+   "muscle_factors": {
+    "Deltoides lateral": 1
+   },
+   "substitutes": [
+    "Elevación lateral en polea"
+   ],
+   "rir_class": "machine",
+   "pain_zone": null,
+   "calibrate": true
+  },
+  {
+   "id": "L3",
+   "day": "Miércoles",
+   "order": 1,
+   "name": "Press de pecho en máquina",
+   "target": "Pectoral",
+   "synergists": "Tríceps",
+   "base_sets": 3,
+   "rep_min": 8,
+   "rep_max": 12,
+   "rest_sec_min": 120,
+   "rest_sec_max": 120,
+   "priority": false,
+   "load_step_kg": 2.5,
+   "muscle_factors": {
+    "Pecho": 1,
+    "Tríceps": 0.5,
+    "Deltoides anterior": 0.5
+   },
+   "substitutes": [
+    "Pec deck",
+    "Aperturas en polea"
+   ],
+   "rir_class": "pain",
+   "pain_zone": "Hombro",
+   "calibrate": false
+  },
+  {
+   "id": "N1",
+   "day": "Miércoles",
+   "order": 2,
+   "name": "Jalón unilateral en polea, codo hacia la cadera",
+   "target": "Dorsal",
+   "synergists": "Bíceps",
+   "base_sets": 3,
+   "rep_min": 10,
+   "rep_max": 15,
+   "rest_sec_min": 120,
+   "rest_sec_max": 120,
+   "priority": false,
+   "load_step_kg": 1.25,
+   "muscle_factors": {
+    "Dorsal": 1,
+    "Bíceps": 0.5
+   },
+   "substitutes": [
+    "Remo unilateral en polea, codo pegado"
+   ],
+   "rir_class": "machine",
+   "pain_zone": null,
+   "calibrate": false
+  },
+  {
+   "id": "X4",
+   "day": "Miércoles",
+   "order": 3,
+   "name": "Elevación lateral con mancuernas",
+   "target": "Deltoides lateral",
+   "synergists": "—",
+   "base_sets": 3,
+   "rep_min": 12,
+   "rep_max": 20,
+   "rest_sec_min": 90,
+   "rest_sec_max": 90,
+   "priority": true,
+   "load_step_kg": 1.0,
+   "muscle_factors": {
+    "Deltoides lateral": 1
+   },
+   "substitutes": [
+    "Elevación lateral en máquina, sin pasar la horizontal"
+   ],
+   "rir_class": "machine",
+   "pain_zone": null,
+   "calibrate": false
+  },
+  {
+   "id": "J4",
+   "day": "Miércoles",
+   "order": 4,
+   "name": "Pec deck invertido",
+   "target": "Deltoides posterior",
+   "synergists": "Espalda media",
+   "base_sets": 3,
+   "rep_min": 12,
+   "rep_max": 20,
+   "rest_sec_min": 90,
+   "rest_sec_max": 90,
+   "priority": false,
+   "load_step_kg": 1.0,
+   "muscle_factors": {
+    "Deltoides posterior": 1,
+    "Espalda media": 0.5
+   },
+   "substitutes": [
+    "Pájaro en polea cruzada"
+   ],
+   "rir_class": "machine",
+   "pain_zone": null,
+   "calibrate": false
+  },
+  {
+   "id": "N2",
+   "day": "Miércoles",
+   "order": 5,
+   "name": "Patada de tríceps en polea",
+   "target": "Tríceps",
+   "synergists": "—",
+   "base_sets": 3,
+   "rep_min": 12,
+   "rep_max": 15,
+   "rest_sec_min": 90,
+   "rest_sec_max": 90,
+   "priority": false,
+   "load_step_kg": 1.25,
+   "muscle_factors": {
+    "Tríceps": 1
+   },
+   "substitutes": [
+    "Pushdown con barra V"
+   ],
+   "rir_class": "pain",
+   "pain_zone": "Codo",
+   "calibrate": false
+  },
+  {
+   "id": "N3",
+   "day": "Miércoles",
+   "order": 6,
+   "name": "Crunch en polea",
+   "target": "Abdomen",
+   "synergists": "—",
+   "base_sets": 3,
+   "rep_min": 10,
+   "rep_max": 15,
+   "rest_sec_min": 90,
+   "rest_sec_max": 90,
+   "priority": true,
+   "load_step_kg": 2.5,
+   "muscle_factors": {
+    "Abdomen": 1
+   },
+   "substitutes": [
+    "Crunch en máquina"
+   ],
+   "rir_class": "machine",
+   "pain_zone": null,
+   "calibrate": false
+  },
+  {
+   "id": "N4",
+   "day": "Jueves",
+   "order": 1,
+   "name": "Hip thrust en máquina o con barra",
+   "target": "Glúteo",
+   "synergists": "—",
+   "base_sets": 3,
+   "rep_min": 8,
+   "rep_max": 12,
+   "rest_sec_min": 120,
+   "rest_sec_max": 180,
+   "priority": false,
+   "load_step_kg": 2.5,
+   "muscle_factors": {
+    "Glúteo": 1
+   },
+   "substitutes": [
+    "Puente de glúteo en máquina, rango corto"
+   ],
+   "rir_class": "pain",
+   "pain_zone": "Cadera izq.",
+   "calibrate": false
+  },
+  {
+   "id": "M1",
+   "day": "Jueves",
+   "order": 2,
+   "name": "Sentadilla hack, profundidad sin dolor de cadera",
+   "target": "Cuádriceps",
+   "synergists": "Glúteo",
+   "base_sets": 3,
+   "rep_min": 8,
+   "rep_max": 12,
+   "rest_sec_min": 120,
+   "rest_sec_max": 180,
+   "priority": false,
+   "load_step_kg": 2.5,
+   "muscle_factors": {
+    "Cuádriceps": 1,
+    "Glúteo": 0.5
+   },
+   "substitutes": [
+    "Prensa a la profundidad sin dolor"
+   ],
+   "rir_class": "pain",
+   "pain_zone": "Cadera izq.",
+   "calibrate": false
+  },
+  {
+   "id": "V3",
+   "day": "Jueves",
+   "order": 3,
+   "name": "Curl femoral tumbado",
+   "target": "Isquiotibiales",
+   "synergists": "—",
+   "base_sets": 3,
+   "rep_min": 10,
+   "rep_max": 15,
+   "rest_sec_min": 90,
+   "rest_sec_max": 90,
+   "priority": false,
+   "load_step_kg": 1.0,
+   "muscle_factors": {
+    "Isquiotibiales": 1
+   },
+   "substitutes": [
+    "Curl femoral sentado"
+   ],
+   "rir_class": "machine",
+   "pain_zone": null,
+   "calibrate": false
+  },
+  {
+   "id": "N5",
+   "day": "Jueves",
+   "order": 4,
+   "name": "Extensión de cuádriceps",
+   "target": "Cuádriceps",
+   "synergists": "—",
+   "base_sets": 2,
+   "rep_min": 12,
+   "rep_max": 15,
+   "rest_sec_min": 90,
+   "rest_sec_max": 90,
+   "priority": false,
+   "load_step_kg": 1.0,
+   "muscle_factors": {
+    "Cuádriceps": 1
+   },
+   "substitutes": [
+    "Extensión de cuádriceps unilateral"
+   ],
+   "rir_class": "machine",
+   "pain_zone": null,
+   "calibrate": false
+  },
+  {
+   "id": "V5",
+   "day": "Jueves",
+   "order": 5,
+   "name": "Elevación de talones sentado",
+   "target": "Pantorrillas",
+   "synergists": "—",
+   "base_sets": 3,
+   "rep_min": 12,
+   "rep_max": 20,
+   "rest_sec_min": 60,
+   "rest_sec_max": 90,
+   "priority": false,
+   "load_step_kg": 2.5,
+   "muscle_factors": {
+    "Pantorrillas": 1
+   },
+   "substitutes": [
+    "Elevación de talones sentado con disco en banco"
+   ],
+   "rir_class": "machine",
+   "pain_zone": null,
+   "calibrate": false
+  },
+  {
+   "id": "N6",
+   "day": "Jueves",
+   "order": 6,
+   "name": "Pájaro en polea cruzada",
+   "target": "Deltoides posterior",
+   "synergists": "Espalda media",
+   "base_sets": 2,
+   "rep_min": 12,
+   "rep_max": 20,
+   "rest_sec_min": 90,
+   "rest_sec_max": 90,
+   "priority": false,
+   "load_step_kg": 1.25,
+   "muscle_factors": {
+    "Deltoides posterior": 1,
+    "Espalda media": 0.5
+   },
+   "substitutes": [
+    "Pec deck invertido"
+   ],
+   "rir_class": "machine",
+   "pain_zone": null,
+   "calibrate": false
+  },
+  {
+   "id": "N7",
+   "day": "Jueves",
+   "order": 7,
+   "name": "Crunch en máquina",
+   "target": "Abdomen",
+   "synergists": "—",
+   "base_sets": 3,
+   "rep_min": 10,
+   "rep_max": 15,
+   "rest_sec_min": 90,
+   "rest_sec_max": 90,
+   "priority": true,
+   "load_step_kg": 2.5,
+   "muscle_factors": {
+    "Abdomen": 1
+   },
+   "substitutes": [
+    "Crunch en polea arrodillado"
+   ],
+   "rir_class": "machine",
+   "pain_zone": null,
+   "calibrate": true
+  },
+  {
+   "id": "J1",
+   "day": "Viernes",
+   "order": 1,
+   "name": "Dominada asistida en máquina",
+   "target": "Dorsal",
+   "synergists": "Bíceps",
+   "base_sets": 3,
+   "rep_min": 6,
+   "rep_max": 10,
+   "rest_sec_min": 120,
+   "rest_sec_max": 180,
+   "priority": true,
+   "load_step_kg": 2.5,
+   "muscle_factors": {
+    "Dorsal": 1,
+    "Bíceps": 0.5
+   },
+   "substitutes": [
+    "Jalón con agarre prono (si molesta el hombro)",
+    "Jalón con agarre neutro estrecho"
+   ],
+   "rir_class": "pain",
+   "pain_zone": "Hombro",
+   "calibrate": false
+  },
+  {
+   "id": "L4",
+   "day": "Viernes",
+   "order": 2,
+   "name": "Remo sentado en polea, agarre neutro",
+   "target": "Espalda media",
+   "synergists": "Dorsal, bíceps, deltoides posterior",
+   "base_sets": 3,
+   "rep_min": 8,
+   "rep_max": 12,
+   "rest_sec_min": 120,
+   "rest_sec_max": 120,
+   "priority": false,
+   "load_step_kg": 2.5,
+   "muscle_factors": {
+    "Espalda media": 1,
+    "Dorsal": 0.5,
+    "Bíceps": 0.5,
+    "Deltoides posterior": 0.5
+   },
+   "substitutes": [
+    "Remo en máquina con apoyo de pecho"
+   ],
+   "rir_class": "machine",
+   "pain_zone": null,
+   "calibrate": false
+  },
+  {
+   "id": "J3",
+   "day": "Viernes",
+   "order": 3,
+   "name": "Pullover en polea, brazos semiextendidos",
+   "target": "Dorsal",
+   "synergists": "—",
+   "base_sets": 2,
+   "rep_min": 10,
+   "rep_max": 15,
+   "rest_sec_min": 90,
+   "rest_sec_max": 90,
+   "priority": false,
+   "load_step_kg": 1.0,
+   "muscle_factors": {
+    "Dorsal": 1
+   },
+   "substitutes": [
+    "Remo unilateral en polea, codo pegado"
+   ],
+   "rir_class": "pain",
+   "pain_zone": "Hombro",
+   "calibrate": false
+  },
+  {
+   "id": "X3",
+   "day": "Viernes",
+   "order": 4,
+   "name": "Aperturas en polea",
+   "target": "Pectoral",
+   "synergists": "—",
+   "base_sets": 2,
+   "rep_min": 10,
+   "rep_max": 15,
+   "rest_sec_min": 90,
+   "rest_sec_max": 90,
+   "priority": false,
+   "load_step_kg": 1.0,
+   "muscle_factors": {
+    "Pecho": 1
+   },
+   "substitutes": [
+    "Pec deck"
+   ],
+   "rir_class": "machine",
+   "pain_zone": null,
+   "calibrate": false
+  },
+  {
+   "id": "N8",
+   "day": "Viernes",
+   "order": 5,
+   "name": "Elevación lateral en polea por detrás del cuerpo",
+   "target": "Deltoides lateral",
+   "synergists": "—",
+   "base_sets": 3,
+   "rep_min": 12,
+   "rep_max": 20,
+   "rest_sec_min": 90,
+   "rest_sec_max": 90,
+   "priority": false,
+   "load_step_kg": 1.25,
+   "muscle_factors": {
+    "Deltoides lateral": 1
+   },
+   "substitutes": [
+    "Elevación lateral en máquina, sin pasar la horizontal"
+   ],
+   "rir_class": "machine",
+   "pain_zone": null,
+   "calibrate": false
+  },
+  {
+   "id": "N9",
+   "day": "Viernes",
+   "order": 6,
+   "name": "Pushdown con barra V",
+   "target": "Tríceps",
+   "synergists": "—",
+   "base_sets": 3,
+   "rep_min": 10,
+   "rep_max": 15,
+   "rest_sec_min": 90,
+   "rest_sec_max": 90,
+   "priority": false,
+   "load_step_kg": 2.5,
+   "muscle_factors": {
+    "Tríceps": 1
+   },
+   "substitutes": [
+    "Pushdown con agarre inverso, más ligero"
+   ],
+   "rir_class": "pain",
+   "pain_zone": "Codo",
+   "calibrate": false
+  },
+  {
+   "id": "N10",
+   "day": "Viernes",
+   "order": 7,
+   "name": "Crunch en polea",
+   "target": "Abdomen",
+   "synergists": "—",
+   "base_sets": 3,
+   "rep_min": 10,
+   "rep_max": 15,
+   "rest_sec_min": 90,
+   "rest_sec_max": 90,
+   "priority": false,
+   "load_step_kg": 2.5,
+   "muscle_factors": {
+    "Abdomen": 1
+   },
+   "substitutes": [
+    "Crunch en máquina"
+   ],
+   "rir_class": "machine",
+   "pain_zone": null,
+   "calibrate": false
+  }
+ ]
 }

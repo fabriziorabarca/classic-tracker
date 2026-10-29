@@ -2,14 +2,21 @@
 // Cada función tiene tests en tests/domain.test.mjs.
 
 export const BLOCK_WEEKS = 6;
-export const RIR_BY_WEEK = [3, 2, 2, 1, 1, 4]; // semana 5: 0 permitido si allows_failure
 export const DELOAD_WEEK = 6;
+export const CALIBRATION_WEEKS = [1, 2];
 export const DAYS = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes'];
 export const SESSION_NAMES = {
-  Lunes: 'Torso', Martes: 'Pierna A', 'Miércoles': 'Empuje', Jueves: 'Tirón', Viernes: 'Pierna B',
+  Lunes: 'Torso A', Martes: 'Pierna A', 'Miércoles': 'Torso B', Jueves: 'Pierna B', Viernes: 'Torso C',
 };
-// Multiarticulares libres: nunca RIR 0.
-export const NO_FAILURE_IDS = new Set(['L1', 'M1', 'M2', 'X1', 'J1', 'V2']);
+// RIR por semana (1..6) según el tipo de ejercicio (rutina aprobada del Bloque 2).
+// machine: máquinas y poleas sin dolor · free: compuestos con peso libre (nunca al fallo)
+// pain: ejercicios que cargan una zona con dolor (mínimo RIR 2 hasta la evaluación).
+// target = número que se precarga y que usa la doble progresión; label = rango que se muestra.
+export const RIR_BY_CLASS = {
+  machine: { target: [3, 2, 2, 1, 1, 4], label: ['3', '2', '1–2', '1', '0–1', '3–4'] },
+  free: { target: [3, 2, 2, 2, 1, 4], label: ['3', '2', '2', '1–2', '1', '3–4'] },
+  pain: { target: [3, 2, 2, 2, 2, 4], label: ['3', '2', '2', '2', '2', '3–4'] },
+};
 
 const MS_DAY = 86400000;
 
@@ -39,19 +46,38 @@ export function blockWeek(startISO, dateISO) {
   return Math.floor(diff / 7) + 1;
 }
 
+const rirRow = (ex) => RIR_BY_CLASS[ex?.rir_class] ?? RIR_BY_CLASS.machine;
+const clampWeek = (week) => Math.min(Math.max(week, 1), BLOCK_WEEKS) - 1;
+
+/** Solo las máquinas y poleas sin dolor pueden llegar al fallo (semana 5 o calibración). */
 export function allowsFailure(ex) {
-  return ex.allows_failure ?? !NO_FAILURE_IDS.has(ex.id);
+  return (ex?.rir_class ?? 'machine') === 'machine';
 }
 
 /** RIR objetivo numérico para un ejercicio en una semana. */
 export function rirTarget(week, ex) {
-  if (week === 5) return allowsFailure(ex) ? 0 : 1;
-  return RIR_BY_WEEK[week - 1];
+  return rirRow(ex).target[clampWeek(week)];
 }
 
-/** Texto del RIR de la semana para la cabecera. */
-export function rirLabel(week) {
-  return week === 5 ? '0–1' : String(RIR_BY_WEEK[week - 1]);
+/** Texto del RIR de la semana. Sin ejercicio: el de máquinas (cabecera). */
+export function rirLabel(week, ex) {
+  return rirRow(ex).label[clampWeek(week)];
+}
+
+/** La última serie de un ejercicio de calibración, en las semanas 1 y 2, va al fallo real. */
+export function isCalibrationSet(ex, week, setNo, planned) {
+  return Boolean(ex?.calibrate) && CALIBRATION_WEEKS.includes(week) && setNo === planned;
+}
+
+/**
+ * Sesgo de calibración: repeticiones que hiciste de más respecto de las que creías tener.
+ * Positivo = subestimas tu reserva (te quedas más lejos del fallo de lo que crees).
+ */
+export function calibrationBias(sets) {
+  const cal = effective(sets).filter((s) => Number.isFinite(s.rir_pred) && Number.isFinite(s.reps_extra));
+  if (!cal.length) return null;
+  const sum = cal.reduce((a, s) => a + (s.reps_extra - s.rir_pred), 0);
+  return { n: cal.length, bias: Math.round((sum / cal.length) * 10) / 10 };
 }
 
 /** Series planificadas de un ejercicio en una semana (1..6). */

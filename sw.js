@@ -1,6 +1,6 @@
 // Service worker: la app funciona sin conexión.
 // Al cambiar archivos, sube VERSION para que el teléfono descargue la nueva versión.
-const VERSION = 'v1';
+const VERSION = 'v2';
 const CACHE = `classic-tracker-${VERSION}`;
 const ASSETS = [
   './', 'index.html', 'styles.css', 'manifest.webmanifest',

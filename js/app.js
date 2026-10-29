@@ -2,7 +2,7 @@ import * as db from './db.js';
 import {
   DAYS, SESSION_NAMES, BLOCK_WEEKS, DELOAD_WEEK, plannedSets, rirTarget, rirLabel, e1rm,
   prefill, bestE1rm, blockWeek, weekdayName, todayISO, nextTrainingDay, mondayOf, formatDate,
-  effective, uuid, isoAddDays,
+  effective, uuid, isoAddDays, isCalibrationSet, calibrationBias,
 } from './domain.js';
 
 // ---------- Estado ----------
@@ -46,26 +46,42 @@ function toast(msg, ms = 2200) {
 function vibrate(p) { try { navigator.vibrate?.(p); } catch { /* sin vibración */ } }
 
 // ---------- Datos ----------
+const SEED_VERSION = 2; // 2 = rutina aprobada del Bloque 2 (29/10/2026)
 async function loadSeed() {
   const version = await db.getMeta('seedVersion');
-  if (version === 1) return;
+  if (version === SEED_VERSION) return;
   const res = await fetch('data/seed_exercises.json');
   const seed = await res.json();
+  const ids = new Set(seed.exercises.map((e) => e.id));
   for (const ex of seed.exercises) {
     const prev = await db.get('exercises', ex.id);
+    const { allows_failure: _drop, ...rest } = ex;
     await db.put('exercises', {
-      ...ex,
-      allows_failure: !['L1', 'M1', 'M2', 'X1', 'J1', 'V2'].includes(ex.id),
+      ...rest,
+      active: true,
       load_step_kg: prev?.load_step_kg ?? ex.load_step_kg,
       machine_setting: prev?.machine_setting ?? '',
     });
   }
-  await db.setMeta('seedVersion', 1);
+  // Ejercicios que ya no están en la rutina: se conservan para el historial, pero no se muestran.
+  for (const old of await db.all('exercises')) {
+    if (!ids.has(old.id) && old.active !== false) await db.put('exercises', { ...old, active: false });
+  }
+  // Quien venía del Bloque 1 pasa al Bloque 2, que empieza el próximo lunes (se puede cambiar en Yo).
+  const block = await db.getMeta('block');
+  if (version === 1 && block) {
+    const start = weekdayName(S.today) === 'Lunes' ? S.today : isoAddDays(mondayOf(S.today), 7);
+    await db.setMeta('block', { number: block.number + 1, start });
+    S.migrated = true;
+  }
+  await db.setMeta('seedVersion', SEED_VERSION);
 }
 
 async function refresh() {
-  S.exercises = (await db.all('exercises')).sort((a, b) => DAYS.indexOf(a.day) - DAYS.indexOf(b.day) || a.order - b.order);
-  S.exById = Object.fromEntries(S.exercises.map((e) => [e.id, e]));
+  const all = await db.all('exercises');
+  S.exById = Object.fromEntries(all.map((e) => [e.id, e]));
+  S.exercises = all.filter((e) => e.active !== false)
+    .sort((a, b) => DAYS.indexOf(a.day) - DAYS.indexOf(b.day) || a.order - b.order);
   S.sessions = (await db.all('sessions')).filter((s) => !s.deleted_at);
   S.sets = (await db.all('sets')).filter((s) => !s.deleted_at);
   S.block = await db.getMeta('block');
@@ -150,7 +166,9 @@ function draftFor(ex, n, planned, pre) {
   const key = `${ex.id}:${n}`;
   if (!S.drafts[key]) {
     const p = pre[n - 1] ?? pre[pre.length - 1];
-    S.drafts[key] = { load: p.load, reps: p.reps, rir: rirTarget(week(), ex), up: p.up };
+    const cal = isCalibrationSet(ex, week(), n, planned);
+    S.drafts[key] = { load: p.load, reps: p.reps, rir: cal ? 0 : rirTarget(week(), ex), up: p.up };
+    if (cal) Object.assign(S.drafts[key], { rir_pred: rirTarget(week(), ex), reps_extra: null });
   }
   return S.drafts[key];
 }
@@ -172,6 +190,10 @@ async function logSet(exId, n) {
   const ex = S.exById[exId];
   const d = S.drafts[`${exId}:${n}`];
   if (!d) return;
+  if ('rir_pred' in d && d.reps_extra === null) {
+    toast('Calibración: marca cuántas repeticiones hiciste de más después de estimar');
+    return;
+  }
   if (!(d.load > 0) && !confirm('La carga está en 0 kg. ¿Registrar igual? (usa 0 solo para peso corporal)')) return;
   const ses = await ensureSession();
   keepAwake(true);
@@ -183,6 +205,7 @@ async function logSet(exId, n) {
     is_substitute: false, is_warmup: false, set_no: n, load_kg: d.load, reps: d.reps, rir: d.rir,
     pain_zone: null, note_tags: [], note: '', created_at: new Date().toISOString(),
     deleted_at: null, record: prevBest > 0 && value > prevBest,
+    ...('rir_pred' in d ? { rir_pred: d.rir_pred, reps_extra: d.reps_extra } : {}),
   });
   S.sets.push(row);
   delete S.drafts[`${exId}:${n}`];
@@ -199,7 +222,10 @@ async function undoSet(setId) {
   if (!row) return;
   const saved = await db.put('sets', { ...row, deleted_at: new Date().toISOString() });
   S.sets = S.sets.filter((s) => s.id !== setId);
-  S.drafts[`${row.exercise_id}:${row.set_no}`] = { load: row.load_kg, reps: row.reps, rir: row.rir, up: false };
+  S.drafts[`${row.exercise_id}:${row.set_no}`] = {
+    load: row.load_kg, reps: row.reps, rir: row.rir, up: false,
+    ...('rir_pred' in row ? { rir_pred: row.rir_pred, reps_extra: row.reps_extra } : {}),
+  };
   await saveDrafts();
   void saved;
   render();
@@ -287,7 +313,7 @@ async function renderToday() {
   let html = `
     <div class="row spread"><div>
       <h1>${S.day} · ${SESSION_NAMES[S.day]}</h1>
-      <div class="muted">Semana ${w} de ${BLOCK_WEEKS}${w === DELOAD_WEEK ? ' · descarga' : ''} · RIR ${rirLabel(w)} · ${formatDate(S.today)}</div>
+      <div class="muted">Bloque ${S.block.number} · semana ${w} de ${BLOCK_WEEKS}${w === DELOAD_WEEK ? ' · descarga' : ''} · ${formatDate(S.today)}</div>
     </div></div>
     ${dayChips()}`;
 
@@ -315,7 +341,8 @@ async function renderToday() {
       : 'Primera vez: toca la carga para escribirla';
     html += `<section class="card ex ${logged.length >= planned ? 'done' : ''}" id="ex-${ex.id}">
       <h2><span class="num">${ex.order}</span><span>${esc(ex.name)}</span></h2>
-      <div class="meta muted small">${esc(ex.target)} · ${ex.rep_min}–${ex.rep_max} reps · RIR ${rirTarget(w, ex)} · descanso ${restText(ex)}</div>
+      <div class="meta muted small">${esc(ex.target)} · ${ex.rep_min}–${ex.rep_max} reps · RIR ${rirLabel(w, ex)} · descanso ${restText(ex)}</div>
+      ${ex.pain_zone ? `<div class="row wrap small"><span class="badge warn">Zona sensible: ${esc(ex.pain_zone)} · si duele la articulación, usa ${esc(ex.substitutes?.[0] ?? 'el sustituto')}</span></div>` : ''}
       <div class="row wrap small"><span class="muted">${lastTxt}</span>${anyUp ? '<span class="badge up">Sugerido ↑ carga</span>' : ''}${ex.machine_setting ? `<span class="badge">${esc(ex.machine_setting)}</span>` : ''}</div>`;
     for (let n = 1; n <= planned; n++) {
       const row = logged.find((s) => s.set_no === n);
@@ -329,7 +356,14 @@ async function renderToday() {
       const d = draftFor(ex, n, planned, pre);
       const isNext = !firstPending;
       if (isNext) firstPending = ex.id;
-      html += `<div class="set ${isNext ? 'next' : ''}" data-key="${key}">
+      const calRow = 'rir_pred' in d ? `<div class="cal small">
+          <p><b>Calibración.</b> Cuando creas que te quedan pocas, estima cuántas; luego sigue hasta el fallo real y anota el total.</p>
+          <div class="bottom"><span class="label small">Creías</span>
+            ${[0, 1, 2, 3, 4].map((r) => `<button class="rir ${d.rir_pred === r ? 'on' : ''}" data-action="rir-pred" data-key="${key}" data-v="${r}">${r === 4 ? '4+' : r}</button>`).join('')}</div>
+          <div class="bottom"><span class="label small">De más</span>
+            ${[0, 1, 2, 3, 4, 5, 6].map((r) => `<button class="rir ${d.reps_extra === r ? 'on' : ''}" data-action="reps-extra" data-key="${key}" data-v="${r}">${r === 6 ? '6+' : r}</button>`).join('')}</div>
+        </div>` : '';
+      html += `<div class="set ${isNext ? 'next' : ''}" data-key="${key}">${calRow}
         <div class="top">
           <span class="label">${n}</span>
           <div class="stepper"><button data-step="${key}|load|-1" aria-label="Menos carga">−</button>
@@ -425,7 +459,14 @@ function renderProgress() {
     const pct = first ? ((lastV / first - 1) * 100).toFixed(1).replace('.', ',') : '0';
     return `<tr><td>${esc(ex.name)}</td><td class="n">${fmtKg(first)}</td><td class="n">${fmtKg(lastV)}</td><td class="n">${pct} %</td></tr>`;
   }).join('');
-  $view.innerHTML = `<h1>Progreso</h1>
+  const cal = calibrationBias(S.sets);
+  const calCard = `<div class="card"><h2>Calibración del RIR</h2><p class="muted small">${cal
+    ? `${cal.n} serie${cal.n === 1 ? '' : 's'} de calibración. ${cal.bias > 0
+      ? `En promedio te quedaban ${fmtKg(cal.bias)} repeticiones más de las que creías: cuando estimes un RIR, réstale ${fmtKg(cal.bias)}.`
+      : cal.bias < 0 ? `En promedio te quedaban ${fmtKg(-cal.bias)} repeticiones menos de las que creías: deja un poco más de margen.`
+        : 'Tus estimaciones coinciden con lo que haces.'}`
+    : 'Aún sin datos. En las semanas 1 y 2, la última serie de los ejercicios marcados va al fallo para medir tu sesgo.'}</p></div>`;
+  $view.innerHTML = `<h1>Progreso</h1>${calCard}
     <p class="muted">Mejor e1RM estimado (kg): primera semana registrada contra la última. Los gráficos llegan en la Fase 5.</p>
     ${rows ? `<div class="card"><table><thead><tr><th>Ejercicio</th><th class="n">Inicio</th><th class="n">Actual</th><th class="n">Cambio</th></tr></thead><tbody>${rows}</tbody></table></div>` : '<p class="muted">Registra tu primera sesión para ver datos.</p>'}`;
 }
@@ -502,8 +543,9 @@ document.addEventListener('click', async (e) => {
   const a = t.dataset.action;
   if (a === 'log') return logSet(t.dataset.ex, Number(t.dataset.n));
   if (a === 'undo') return undoSet(t.dataset.id);
-  if (a === 'rir') {
-    S.drafts[t.dataset.key].rir = Number(t.dataset.v);
+  if (a === 'rir' || a === 'rir-pred' || a === 'reps-extra') {
+    const field = { rir: 'rir', 'rir-pred': 'rir_pred', 'reps-extra': 'reps_extra' }[a];
+    S.drafts[t.dataset.key][field] = Number(t.dataset.v);
     t.parentElement.querySelectorAll('.rir').forEach((x) => x.classList.toggle('on', x === t));
     return saveDrafts();
   }
@@ -598,6 +640,7 @@ document.addEventListener('visibilitychange', async () => {
   await loadSeed();
   await refresh();
   render();
+  if (S.migrated) toast(`Rutina del Bloque 2 cargada. Empieza el ${formatDate(S.block.start)}; puedes cambiar la fecha en Yo.`, 6000);
   const rest = await db.getMeta('rest');
   if (rest) runRest(rest);
   if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
