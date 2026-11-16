@@ -1,6 +1,6 @@
 // Service worker: la app funciona sin conexión.
 // Al cambiar archivos, sube VERSION para que el teléfono descargue la nueva versión.
-const VERSION = 'v2';
+const VERSION = 'v3';
 const CACHE = `classic-tracker-${VERSION}`;
 const ASSETS = [
   './', 'index.html', 'styles.css', 'manifest.webmanifest',
@@ -21,6 +21,8 @@ self.addEventListener('activate', (e) => {
 // Caché primero (abre al instante aunque la señal sea mala) y actualiza en segundo plano.
 self.addEventListener('fetch', (e) => {
   if (e.request.method !== 'GET' || new URL(e.request.url).origin !== location.origin) return;
+  // maqueta-ar es otra página (realidad aumentada): siempre desde la red, sin caché.
+  if (new URL(e.request.url).pathname.includes('/maqueta-ar/')) return;
   e.respondWith(caches.open(CACHE).then(async (c) => {
     const cached = await c.match(e.request, { ignoreSearch: true });
     const fresh = fetch(e.request).then((res) => {

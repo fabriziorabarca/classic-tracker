@@ -89,7 +89,7 @@ nav button.full{grid-column:1/-1;min-height:0;flex-direction:row;justify-content
     <label><input type="checkbox" data-l="caved" checked> Zona hundida y mineral quebrado</label>
     <label><input type="checkbox" data-l="rings" checked> Abanicos pre-perforados</label>
     <label><input type="checkbox" data-l="labels" checked> Etiquetas</label>
-    <label><input type="checkbox" id="follow" checked> Cámara sigue a los equipos</label>
+    <label><input type="checkbox" id="follow"> Cámara sigue a la camioneta (animación 3)</label>
   </div>
 
   <div id="guide" class="panel hidden">
@@ -291,9 +291,10 @@ LV.forEach((y,k)=>{
 const RW=[V(0.86,SURF-0.075,-0.50),V(0.60,SURF-0.075,-0.50),V(-XS,LV[0],-0.50),V(-XS,LV[0],-0.42),V(XS,LV[1],-0.42),V(XS,LV[1],-0.50),V(-XS,LV[2],-0.50),V(-XS,LV[2],-0.42),V(XS,LV[3],-0.42)];
 const rampPath=rounded(RW.slice(1),0.035);
 tunnel(rampPath.p,matRamp,matRampGhost,PROF_R);
-const pad=boxMesh(0.6,0.9,SURF-0.09,SURF-0.075,-0.62,-0.38,MSM({color:0x4a5148}));model.add(pad);
+const portalG=new THREE.Group();model.add(portalG);
+const pad=boxMesh(0.6,0.9,SURF-0.09,SURF-0.075,-0.62,-0.38,MSM({color:0x4a5148}));portalG.add(pad);
 const matConc=MSM({color:0xc9c5bb});
-model.add(boxMesh(0.60,0.615,SURF-0.075,SURF-0.005,-0.538,-0.53,matConc),boxMesh(0.60,0.615,SURF-0.075,SURF-0.005,-0.47,-0.462,matConc),boxMesh(0.60,0.615,SURF-0.012,SURF,-0.538,-0.462,matConc));
+portalG.add(boxMesh(0.60,0.615,SURF-0.075,SURF-0.005,-0.538,-0.53,matConc),boxMesh(0.60,0.615,SURF-0.075,SURF-0.005,-0.47,-0.462,matConc),boxMesh(0.60,0.615,SURF-0.012,SURF,-0.538,-0.462,matConc));
 
 /* ---- echadero ---- */
 const matOP=MSM({color:COL.orepass,transparent:true,opacity:.38,depthWrite:false,side:THREE.DoubleSide,emissive:COL.orepass,emissiveIntensity:.15});
@@ -323,11 +324,11 @@ function colorChunk(m,i,hex,j=0){tmpC.set(hex);tmpC.offsetHSL(0,0,j);m.setColorA
   const r=rng(7);const pts=[];
   const inSlab=(x,y,z)=>x>ACT_X-0.16&&x<ACT_X+0.16&&z>ZR-0.012&&z<ZB0+0.012&&y<ACT_Y+RING.top+0.01;
   const push=(x,y,z,ore)=>{if(!inSlab(x,y,z))pts.push([x,y,z,ore])};
-  for(let i=0;i<300;i++){const x=lerp(-0.52,0.52,r()),y=lerp(LV[0]+0.01,SURF-0.015,r()),z=lerp(ORE.z0,0.38,r());push(x,y,z,r()<0.12&&y<LV[0]+0.08)}
+  for(let i=0;i<190;i++){const x=lerp(-0.52,0.52,r()),y=lerp(LV[0]+0.01,SURF-0.015,r()),z=lerp(ORE.z0,0.38,r());push(x,y,z,r()<0.12&&y<LV[0]+0.08)}
   COLS2.forEach(c=>{const zb=c.x0===0?ZB0:c.b;const n=Math.round((c.x1-c.x0)*(ORE.z1-zb)*900);for(let i=0;i<n;i++){push(lerp(c.x0+0.01,c.x1-0.01,r()),lerp(LV[1]+0.01,LV[0],r()),lerp(zb+0.008,ORE.z1,r()),r()<0.55)}});
   for(let i=0;i<55;i++)push(lerp(-0.52,0.52,r()),lerp(LV[1]+0.01,LV[0],r()),lerp(ORE.z1,0.38,r()),false);
   const m=chunkSet(pts.length);
-  pts.forEach((p,i)=>{setChunk(m,i,V(p[0],p[1],p[2]),lerp(0.009,0.019,r()),r()*6,r()*6);colorChunk(m,i,p[3]?COL.oreBroken:COL.waste,(r()-0.5)*0.08)});
+  pts.forEach((p,i)=>{setChunk(m,i,V(p[0],p[1],p[2]),lerp(0.005,0.011,r()),r()*6,r()*6);colorChunk(m,i,p[3]?COL.oreBroken:COL.waste,(r()-0.5)*0.08)});
   G.caved.add(m);
   const crater=new THREE.Mesh(new THREE.PlaneGeometry(1.04,0.6),MSM({color:0x5a4e44,transparent:true,opacity:.55,depthWrite:false,side:THREE.DoubleSide}));
   crater.rotation.x=-Math.PI/2;crater.position.set(0,SURF-0.012,0.09);G.caved.add(crater);
@@ -345,7 +346,7 @@ const BL=(function(){const r=rng(11),a=[];
     let e;
     if(i<26){const f=r();e=V(ACT_X+lerp(-0.022,0.022,r()),ACT_Y+0.007+(1-f)*0.03*r(),ZR+0.01-f*0.085)}
     else e=V(s.x+lerp(-0.01,0.01,r()),Math.max(ACT_Y+0.01,s.y-lerp(0.0,0.05,r())),s.z+lerp(0.0,0.025,r()));
-    a.push({s,e,sz:lerp(0.008,0.016,r()),d:r()*0.3,du:0.6+r()*0.8,arc:0.02+r()*0.05,rx:r()*6,ry:r()*6,j:(r()-0.5)*0.08});
+    a.push({s,e,sz:lerp(0.0055,0.010,r()),d:r()*0.3,du:0.6+r()*0.8,arc:0.02+r()*0.05,rx:r()*6,ry:r()*6,j:(r()-0.5)*0.08});
     colorChunk(blast,i,COL.oreBroken,a[i].j);
   }return a})();
 function blastState(f){ // f: null -> oculto ; número >=0 tiempo desde la tronadura ; Infinity -> asentado
@@ -384,11 +385,11 @@ ANG.forEach(th=>{const m=new THREE.Mesh(holeGeo,MSM({color:0xf3eee4,emissive:0x0
 const ellip=new THREE.Mesh(new THREE.SphereGeometry(1,28,18),MSM({color:COL.draw,transparent:true,opacity:.20,depthWrite:false,emissive:COL.draw,emissiveIntensity:.25}));
 ellip.position.set(ACT_X,ACT_Y+0.2,ZR+0.02);ellip.renderOrder=5;model.add(ellip);
 const NF=26;const flow=chunkSet(NF);model.add(flow);
-const FL=(function(){const r=rng(21),a=[];for(let i=0;i<NF;i++){const ph=r()*Math.PI*2,el=lerp(0.15,1,r());a.push({ph,el,off:r(),sz:lerp(0.008,0.014,r()),j:(r()-0.5)*0.08})}return a})();
+const FL=(function(){const r=rng(21),a=[];for(let i=0;i<NF;i++){const ph=r()*Math.PI*2,el=lerp(0.15,1,r());a.push({ph,el,off:r(),sz:lerp(0.005,0.009,r()),j:(r()-0.5)*0.08})}return a})();
 
 /* ---- balde: fragmentos ---- */
 const NK=11;const bucketChunks=chunkSet(NK);model.add(bucketChunks);
-const BK=(function(){const r=rng(31),a=[];for(let i=0;i<NK;i++)a.push({l:V(lerp(-0.012,0.012,r()),lerp(0.006,0.014,r()),lerp(0.006,0.018,r())),src:V(ACT_X+lerp(-0.02,0.02,r()),ACT_Y+lerp(0.01,0.03,r()),ZR-lerp(0.0,0.05,r())),sz:lerp(0.007,0.011,r()),j:(r()-0.5)*0.08,dd:r()*0.3});return a})();
+const BK=(function(){const r=rng(31),a=[];for(let i=0;i<NK;i++)a.push({l:V(lerp(-0.012,0.012,r()),lerp(0.006,0.014,r()),lerp(0.006,0.018,r())),src:V(ACT_X+lerp(-0.02,0.02,r()),ACT_Y+lerp(0.01,0.03,r()),ZR-lerp(0.0,0.05,r())),sz:lerp(0.005,0.008,r()),j:(r()-0.5)*0.08,dd:r()*0.3});return a})();
 
 /* ================= EQUIPOS ================= */
 function bx(parent,w,h,d,x,y,z,mat){const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat);m.position.set(x,y,z);parent.add(m);return m}
@@ -411,6 +412,10 @@ function makeTruck(){const g=new THREE.Group();g.rotation.order='YXZ';
   const lb=bx(g,0.024,0.003,0.004,0,0.036,0.012,MSM({color:0xff9a1f,emissive:0xff7a00,emissiveIntensity:1}));
   g.userData.lb=lb;wheels(g,[-0.017,0.017],[-0.024,0.022]);return g}
 const jumbo=makeJumbo(),lhd=makeLHD(),truck=makeTruck();model.add(jumbo,lhd,truck);
+// señal flotante sobre cada equipo para ubicarlo y ver que avanza
+const beaconGeo=new THREE.ConeGeometry(0.011,0.024,12);beaconGeo.rotateX(Math.PI);
+const beaconMat=MSM({color:0xff9a1f,emissive:0xff7a00,emissiveIntensity:.9});
+const beacons=[jumbo,lhd,truck].map(v=>{const b=new THREE.Mesh(beaconGeo,beaconMat);b.position.set(0,0.07,0);v.add(b);return b});
 const boom=new THREE.Mesh(new THREE.CylinderGeometry(0.003,0.003,1,6),mY);model.add(boom);
 const feedGeo=new THREE.BoxGeometry(0.006,0.045,0.006);feedGeo.translate(0,-0.0225,0);
 const feed=new THREE.Mesh(feedGeo,mD);feed.position.copy(RO);model.add(feed);
@@ -427,7 +432,7 @@ const PD=rounded([V(OP.x,ACT_Y,-0.30),V(0.34,ACT_Y,ZFW),V(0.42,ACT_Y,ZFW)],0.03)
 const PT=rounded([RW[0],...RW.slice(1),V(XS,LV[3],ZFW),V(0.30,LV[3],ZFW)],0.035);
 
 /* ================= ETIQUETAS ================= */
-function label(text,pos,accent='#f2b705',h=0.042){
+function label(text,pos,accent='#f2b705',h=0.042,tag='ov'){
   const c=document.createElement('canvas');const ctx=c.getContext('2d');const fs=38;
   ctx.font=`600 ${fs}px system-ui,-apple-system,Segoe UI,Roboto,sans-serif`;const w=Math.ceil(ctx.measureText(text).width)+44;
   c.width=w;c.height=60;ctx.font=`600 ${fs}px system-ui,-apple-system,Segoe UI,Roboto,sans-serif`;
@@ -435,22 +440,25 @@ function label(text,pos,accent='#f2b705',h=0.042){
   ctx.fillStyle=accent;ctx.fillRect(0,12,7,36);ctx.fillStyle='#fff';ctx.textBaseline='middle';ctx.fillText(text,24,32);
   const tex=new THREE.CanvasTexture(c);tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=4;
   const s=new THREE.Sprite(new THREE.SpriteMaterial({map:tex,depthTest:false,transparent:true}));
-  s.scale.set(h*w/60,h,1);s.position.copy(pos);s.renderOrder=999;G.labels.add(s);return s;
+  s.scale.set(h*w/60,h,1);s.position.copy(pos);s.renderOrder=999;s.userData.tag=tag;G.labels.add(s);return s;
 }
 const hex=n=>'#'+n.toString(16).padStart(6,'0');
-LV.forEach((y,k)=>label(LVN[k],V(-0.80,y+0.03,ZFW),k===1?'#f2b705':'#9aa6b2',0.038));
+LV.forEach((y,k)=>label(LVN[k],V(-0.80,y+0.03,ZFW),k===1?'#f2b705':'#9aa6b2',0.038,'lvl'));
 label('Zona hundida (estéril)',V(-0.1,SURF+0.06,0.22),hex(COL.waste));
 label('Cuerpo mineralizado',V(-0.28,0.36,0.30),hex(COL.ore));
 label('Galería en caja piso',V(-0.2,LV[3]+0.1,ZFW),hex(COL.tunnel));
 label('Cruzados de producción',V(-0.15,LV[1]+0.11,0.1),hex(COL.tunnel));
 label('Abanicos pre-perforados',V(0.0,LV[2]+0.36,0.14),hex(COL.ring));
-label('Rampa',V(0.05,LV[1]+0.13,-0.5),hex(COL.ramp));
-label('Echadero',V(OP.x+0.05,0.15,OP.z),hex(COL.orepass));
-label('Portal',V(0.76,SURF+0.03,-0.5),hex(COL.ramp));
+label('Rampa',V(0.05,LV[1]+0.13,-0.5),hex(COL.ramp),undefined,'ramp');
+label('Echadero',V(OP.x+0.05,0.15,OP.z),hex(COL.orepass),undefined,'op');
+label('Portal',V(0.76,SURF+0.03,-0.5),hex(COL.ramp),undefined,'ramp');
 label('Caja techo',V(0.3,0.12,0.42),'#9aa6b2',0.034);
 label('Caja piso',V(-0.3,0.12,-0.56),'#9aa6b2',0.034);
-const lblBrow=label('Frente (brow)',V(ACT_X+0.1,ACT_Y+0.07,ZR+0.03),'#ff9a1f',0.036);
-const lblEll=label('Elipsoide de extracción',V(ACT_X+0.02,ACT_Y+0.46,ZR+0.03),hex(COL.draw),0.036);
+const lblBrow=label('Frente (brow)',V(ACT_X+0.1,ACT_Y+0.07,ZR+0.03),'#ff9a1f',0.03,'act');
+const lblEll=label('Elipsoide de extracción',V(ACT_X+0.02,ACT_Y+0.46,ZR+0.03),hex(COL.draw),0.03,'ell');
+const lblJ=label('Jumbo',V(0,0,0),hex(COL.equip),0.026,'eq');jumbo.add(lblJ);lblJ.position.set(0,0.11,0);
+const lblL=label('LHD (scoop)',V(0,0,0),hex(COL.equip),0.026,'eq');lhd.add(lblL);lblL.position.set(0,0.11,0);
+const lblT=label('Camioneta',V(0,0,0),hex(COL.equip),0.026,'eq');truck.add(lblT);lblT.position.set(0,0.11,0);
 
 /* ================= UI ================= */
 const $=id=>document.getElementById(id);
@@ -475,7 +483,7 @@ function resetScene(){
 
 /* --- 1: perforación y tronadura --- */
 const TB=18;
-const A1={name:'1 · Perforación y tronadura',dur:27,cam:{p:V(0.78,1.08,0.72),t:V(0.12,0.86,-0.03)},
+const A1={name:'1 · Perforación y tronadura',dur:27,cam:{t:V(0.14,0.86,-0.1),d:V(0.75,0.5,-1),r:0.38},
   steps:[[0,'Ingreso del jumbo','El jumbo de perforación radial entra por la galería en caja piso hasta el cruzado de producción del subnivel 2.'],
     [4,'Perforación del abanico','Se perforan taladros ascendentes en abanico (un anillo) desde el techo del cruzado. El abanico cubre el pilar entre cruzados y llega hasta el subnivel superior.'],
     [13,'Carguío de explosivos','Los taladros se cargan con explosivo (en rojo) y el equipo y el personal se retiran a zona segura.'],
@@ -514,7 +522,7 @@ const A1={name:'1 · Perforación y tronadura',dur:27,cam:{p:V(0.78,1.08,0.72),t
 
 /* --- 2: carguío --- */
 const CY=12.5, WASTE=[0.15,0.55];
-const A2={name:'2 · Carguío y extracción',dur:28,cam:{p:V(0.86,1.12,0.42),t:V(0.22,0.8,-0.14)},
+const A2={name:'2 · Carguío y extracción',dur:28,cam:{t:V(0.22,0.8,-0.16),d:V(0.6,0.75,-1),r:0.38},
   steps:[[0,'Ingreso del LHD','El cargador (scoop LHD) entra al cruzado hasta el punto de extracción en el frente.'],
     [3,'Carguío en el frente','El balde toma mineral del frente; lo de arriba baja por gravedad y forma el elipsoide de extracción.'],
     [6,'Transporte al echadero','El LHD retrocede a la galería en caja piso y lleva la carga al echadero.'],
@@ -567,7 +575,7 @@ const A2={name:'2 · Carguío y extracción',dur:28,cam:{p:V(0.86,1.12,0.42),t:V
 const STOPS=[V(-XS,LV[0],-0.46),V(XS,LV[1],-0.46),V(-XS,LV[2],-0.46)].map(v=>PT.closestU(v)).concat([1]);
 const VSP=0.28, PAUSE=2.8;
 const A3TL=(function(){const tl=[];let t=0,u=0;STOPS.forEach((us,k)=>{const d=(us-u)*PT.len/VSP;tl.push({t0:t,t1:t+d,u0:u,u1:us});t+=d;tl.push({t0:t,t1:t+PAUSE,u0:us,u1:us,stop:k});t+=PAUSE;u=us});return{tl,dur:t+0.5}})();
-const A3={name:'3 · Ingreso por rampa',dur:A3TL.dur,cam:{p:V(1.25,1.45,0.2),t:V(0.3,1.0,-0.45)},
+const A3={name:'3 · Ingreso por rampa',dur:A3TL.dur,cam:{t:V(0.12,0.74,-0.46),d:V(0.32,0.38,-1),r:0.82},
   steps:(function(){const s=[[0,'Portal de la rampa','Equipos y personal ingresan desde superficie por la bocamina.'],[2.2,'Rampa en caja piso','La rampa baja en zigzag por la caja piso, fuera del cuerpo mineralizado, y conecta todos los subniveles.']];
     const txt=[['Acceso al subnivel 1','Subnivel agotado: ya fue tronado y hundido por completo.'],['Acceso al subnivel 2','Subnivel en producción: tronadura de anillos y carguío.'],['Acceso al subnivel 3','Subnivel en preparación: cruzados listos y anillos pre-perforados.'],['Acceso al subnivel 4','Subnivel en desarrollo: avance de la galería y de los cruzados.']];
     A3TL.tl.filter(x=>x.stop!==undefined).forEach(x=>s.push([x.t0-0.6,txt[x.stop][0],txt[x.stop][1]]));
@@ -581,7 +589,7 @@ const A3={name:'3 · Ingreso por rampa',dur:A3TL.dur,cam:{p:V(1.25,1.45,0.2),t:V
     matTun.forEach((m,k)=>m.emissive.setHex(k===near?0x8a5a00:0));
   }};
 
-const OV={name:'Vista general',dur:Infinity,cam:{p:V(1.45,1.35,1.65),t:V(0,0.6,-0.05)},
+const OV={name:'Vista general',dur:Infinity,cam:{t:V(0.05,0.62,-0.05),d:V(1,0.75,1.1),r:0.95},
   steps:[[0,'Método de hundimiento por subniveles','Rampa en caja piso, subniveles con cruzados escalonados, abanicos de perforación y zona hundida encima. Elige una animación.']],
   setup(){},update(){}};
 const ANIMS={ov:OV,a1:A1,a2:A2,a3:A3};
@@ -590,10 +598,15 @@ const ANIMS={ov:OV,a1:A1,a2:A2,a3:A3};
 let cur=OV,T=0,playing=true,speed=1,camTween=null,AR=false,lastStep=-1;
 const SPEEDS=[0.5,1,1.5];
 function startAnim(key){
-  cur=ANIMS[key];T=0;playing=true;lastStep=-1;resetScene();cur.setup();cur.update(0);
+  cur=ANIMS[key];T=0;playing=true;lastStep=-1;resetScene();
+  const show={ov:['ov','lvl','ramp','op','act'],a1:['lvl','act'],a2:['lvl','op','act'],a3:['lvl','ramp']}[key];
+  G.labels.children.forEach(l=>l.visible=show.includes(l.userData.tag));
+  const dim=key==='a1'||key==='a2';matRamp.transparent=dim;matRamp.opacity=dim?0.12:1;matRamp.depthWrite=!dim;matRamp.needsUpdate=true;matRampGhost.opacity=dim?0.04:0.18;portalG.visible=!dim;
+  lblJ.visible=key==='a1';lblL.visible=key==='a2';lblT.visible=key==='a3';
+  cur.setup();cur.update(0);
   document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',b.dataset.a===key));
   $('bPlay').textContent='Pausa';
-  if(!AR){userCam=false;controls.autoRotate=key==='ov';camTween={fp:camera.position.clone(),ft:controls.target.clone(),tp:cur.cam.p,tt:cur.cam.t,k:0}}
+  if(!AR){userCam=false;controls.autoRotate=key==='ov';const c=camFor(cur.cam);camTween={fp:camera.position.clone(),ft:controls.target.clone(),tp:c.p,tt:c.t,k:0}}
 }
 document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>startAnim(b.dataset.a));
 $('bPlay').onclick=()=>{if(cur.dur!==Infinity&&T>=cur.dur){startAnim(Object.keys(ANIMS).find(k=>ANIMS[k]===cur));return}playing=!playing;$('bPlay').textContent=playing?'Pausa':'Seguir'};
@@ -611,6 +624,7 @@ function tick(){
   const dt=Math.min(clock.getDelta(),0.05);
   if(playing&&cur.dur!==Infinity){T+=dt*speed;if(T>=cur.dur){T=cur.dur;playing=false;$('bPlay').textContent='Repetir'}}
   cur.update(T);caption();
+  const bob=0.07+0.008*Math.sin(performance.now()/180);beacons.forEach(b=>b.position.y=bob);
   if(!AR){
     if(camTween){camTween.k=Math.min(1,camTween.k+dt/1.3);const k=sstep(camTween.k);camera.position.lerpVectors(camTween.fp,camTween.tp,k);controls.target.lerpVectors(camTween.ft,camTween.tt,k);if(camTween.k>=1)camTween=null}
     else if(!userCam&&$('follow').checked&&(cur===A3)){truck.getWorldPosition(fv);controls.target.lerp(fv,0.06);camera.position.lerp(fv.clone().add(V(0.42,0.3,0.55)),0.04)}
@@ -618,7 +632,14 @@ function tick(){
   }
 }
 renderer.setAnimationLoop(()=>{tick();renderer.render(scene,camera)});
-addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)});
+function viewOff(){const hb=document.querySelector('header').offsetHeight,bb=$('bottom').offsetHeight;return{hb,bb,off:(bb-hb)/2}}
+function applyViewOffset(){if(AR)return;const o=viewOff();camera.setViewOffset(innerWidth,innerHeight,0,Math.round(o.off),innerWidth,innerHeight);camera.updateProjectionMatrix()}
+function camFor(c){const v=THREE.MathUtils.degToRad(camera.fov);const o=viewOff();const hEff=Math.max(0.35,(innerHeight-o.hb-o.bb)/innerHeight);
+  const vE=2*Math.atan(Math.tan(v/2)*hEff);const h=2*Math.atan(Math.tan(v/2)*camera.aspect);const f=Math.min(vE,h);
+  const dist=c.r/Math.sin(f/2)*1.05;return{t:c.t.clone(),p:c.t.clone().addScaledVector(c.d.clone().normalize(),dist)}}
+addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);applyViewOffset();
+  if(!AR&&!userCam){const c=camFor(cur.cam);camTween=null;camera.position.copy(c.p);controls.target.copy(c.t)}});
+applyViewOffset();{const c=camFor(OV.cam);camera.position.copy(c.p);controls.target.copy(c.t)}
 startAnim('ov');
 
 /* ================= MODO AR (MindAR) ================= */
@@ -642,14 +663,16 @@ $('bAR').onclick=async()=>{
   $('bAR').textContent='Cargando…';
   let mod;try{mod=await import('mindar-image-three')}catch(e){toast('No se pudo cargar MindAR (revisa la conexión).');$('bAR').textContent='Modo AR';return}
   let src=CFG.targetExample;try{const r=await fetch(CFG.targetLocal,{method:'HEAD',cache:'no-store'});if(r.ok)src=CFG.targetLocal}catch(e){}
-  AR=true;document.body.classList.add('ar');renderer.setAnimationLoop(null);
+  AR=true;document.body.classList.add('ar');
+  addEventListener('error',e=>toast('Error AR: '+(e.message||e.error),12000));addEventListener('unhandledrejection',e=>toast('Error AR: '+(e.reason&&(e.reason.message||e.reason)),12000));renderer.setAnimationLoop(null);
   const mind=new mod.MindARThree({container:$('ar-container'),imageTargetSrc:src});
   const {renderer:r2,scene:s2,camera:c2}=mind;addLights(s2);
   const anchor=mind.addAnchor(0);anchor.group.add(holder);
   G.labels.visible=$('layers').querySelector('[data-l=labels]').checked;applyAdj();
   anchor.onTargetFound=()=>{$('arStat').textContent='Marcador detectado'};anchor.onTargetLost=()=>{$('arStat').textContent='Buscando marcador…'};
   $('bAR').textContent='Salir AR';$('bAdj').classList.remove('hidden');$('sub').textContent=src===CFG.targetLocal?'AR · enfoca el marcador':'AR · enfoca la imagen marcador';
-  try{await mind.start()}catch(e){toast('No se pudo iniciar la cámara: '+e.message);return}
+  try{await mind.start()}catch(e){toast('No se pudo iniciar la cámara: '+(e&&e.message||e),12000);return}
+  $('arStat').textContent='Buscando marcador…';toast('Cámara lista: apunta al marcador del panel derecho.',4000);
   r2.setAnimationLoop(()=>{tick();r2.render(s2,c2)});
 };
 applyAdj();holder.rotation.set(0,0,0);adj.position.set(0,0,0);adj.scale.setScalar(1);adj.rotation.set(0,0,0);
