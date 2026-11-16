@@ -622,16 +622,16 @@ addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updat
 startAnim('ov');
 
 /* ================= MODO AR (MindAR) ================= */
-const ADJ_DEF={h:false,s:0.8,x:0,y:-0.28,z:0.44,r:0};
-let A=Object.assign({},ADJ_DEF);try{const s=JSON.parse(localStorage.getItem('slc-ar')||'null');if(s)A=Object.assign(A,s)}catch(e){}
+const ADJ_DEF={h:false,s:0.8,x:0,y:-0.67,z:0.44,r:0};
+let A=Object.assign({},ADJ_DEF);try{const s=JSON.parse(localStorage.getItem('slc-ar2')||'null');if(s)A=Object.assign(A,s)}catch(e){}
 const ids={s:'adjS',x:'adjX',y:'adjY',z:'adjZ',r:'adjR'};
 function applyAdj(){
   holder.rotation.set(A.h?Math.PI/2:0,0,0);adj.position.set(A.x,A.y,A.z);adj.scale.setScalar(A.s);adj.rotation.set(0,A.r*Math.PI/180,0);
   $('adjH').checked=A.h;Object.entries(ids).forEach(([k,id])=>{const el=$(id);el.value=A[k];el.nextElementSibling.textContent=(+A[k]).toFixed(k==='r'?0:2)});
-  try{localStorage.setItem('slc-ar',JSON.stringify(A))}catch(e){}
+  try{localStorage.setItem('slc-ar2',JSON.stringify(A))}catch(e){}
 }
 Object.entries(ids).forEach(([k,id])=>$(id).oninput=e=>{A[k]=+e.target.value;applyAdj()});
-$('adjH').onchange=e=>{A.h=e.target.checked;if(A.h){A.y=0;A.z=0}else{A.y=-0.28;A.z=0.44}applyAdj()};
+$('adjH').onchange=e=>{A.h=e.target.checked;if(A.h){A.y=0;A.z=0}else{A.y=-0.67;A.z=0.44}applyAdj()};
 $('adjReset').onclick=()=>{A=Object.assign({},ADJ_DEF);applyAdj()};
 
 $('bAR').onclick=async()=>{
