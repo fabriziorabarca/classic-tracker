@@ -26,7 +26,7 @@ jobs:
       - name: Copiar solo los archivos de la app
         run: |
           mkdir _site
-          cp -r index.html styles.css manifest.webmanifest sw.js js data icons _site/
+          cp -r index.html styles.css manifest.webmanifest sw.js js data icons maqueta-ar _site/
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

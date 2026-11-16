@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Sublevel Caving — Maqueta AR</title>
+<style>
+:root{--bg:#0f1318;--panel:rgba(18,23,30,.88);--line:rgba(255,255,255,.10);--tx:#e9edf2;--mut:#9aa6b2;--acc:#f2b705;--acc2:#e08a2e}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;overflow:hidden;background:radial-gradient(120% 90% at 50% 20%,#1d252f 0%,#0d1015 70%);color:var(--tx);font:14px/1.35 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+body.ar{background:transparent}
+#c{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none}
+body.ar #c{display:none}
+#ar-container{position:fixed;inset:0;display:none;z-index:0;overflow:hidden}
+body.ar #ar-container{display:block}
+#ui{position:fixed;inset:0;pointer-events:none;z-index:10;display:flex;flex-direction:column;justify-content:space-between}
+#ui *{pointer-events:auto}
+header{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 12px;background:linear-gradient(#0d1015ee,#0d101500)}
+.ttl{font-weight:700;font-size:16px;letter-spacing:.2px}
+.ttl span{display:block;font-weight:500;font-size:11.5px;color:var(--mut)}
+.hb{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+button{font:inherit;color:var(--tx);background:#232b35;border:1px solid var(--line);border-radius:10px;padding:8px 11px;cursor:pointer}
+button:active{transform:scale(.97)}
+button.acc{background:var(--acc);color:#151515;border-color:transparent;font-weight:700}
+button.on{outline:2px solid var(--acc)}
+.panel{position:absolute;top:58px;right:10px;left:10px;max-width:440px;margin-left:auto;max-height:calc(100% - 300px);overflow:auto;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px 14px;backdrop-filter:blur(6px)}
+.panel h3{margin:4px 0 8px;font-size:14px}
+.panel p{margin:6px 0;color:#cfd6de}
+.panel label{display:flex;align-items:center;gap:8px;padding:5px 0}
+.hidden{display:none!important}
+.sw{display:grid;grid-template-columns:22px 1fr;gap:6px 9px;align-items:center;margin:6px 0 10px}
+.sw i{width:22px;height:16px;border-radius:4px;border:1px solid #0006}
+.sw span b{font-weight:600}
+.rng{display:grid;grid-template-columns:80px 1fr 44px;gap:8px;align-items:center;margin:4px 0}
+.rng input{width:100%}
+#bottom{padding:8px 10px calc(10px + env(safe-area-inset-bottom));background:linear-gradient(#0d101500,#0d1015f2 30%)}
+#cap{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:9px 12px 10px;margin-bottom:8px}
+#capStep{font-size:11px;color:var(--acc);font-weight:700;text-transform:uppercase;letter-spacing:.6px}
+#capTitle{font-weight:700;font-size:15px;margin:1px 0 2px}
+#capText{color:#cfd6de;font-size:13px;min-height:34px}
+.bar{height:4px;background:#2a333e;border-radius:3px;margin-top:8px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--acc)}
+#dil{margin-top:8px;font-size:11.5px;color:var(--mut)}
+#dil .db{display:flex;height:10px;border-radius:5px;overflow:hidden;margin-top:4px;background:#2a333e}
+#dil .o{background:#d0782c}#dil .w{background:#7b7066}
+.row{display:flex;gap:6px;align-items:center}
+#ctrl{margin-bottom:8px}
+#ctrl button{padding:6px 10px;font-size:12.5px}
+#ctrl .sp{flex:1;color:var(--mut);font-size:11px;text-align:right}
+nav{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px}
+nav button{display:flex;flex-direction:column;align-items:flex-start;gap:2px;text-align:left;padding:9px 10px;font-size:12.5px;line-height:1.2;min-height:56px}
+nav button b{font-size:11px;color:var(--acc)}
+nav button.on{background:#2f3a47}
+nav button.full{grid-column:1/-1;min-height:0;flex-direction:row;justify-content:center;padding:7px}
+#big{position:fixed;left:50%;top:42%;transform:translate(-50%,-50%);font-size:96px;font-weight:800;color:#fff;text-shadow:0 4px 30px #000c;z-index:20;pointer-events:none}
+#toast{position:fixed;left:50%;top:70px;transform:translateX(-50%);max-width:92%;background:#2b1f12;border:1px solid #f2b70566;color:#ffe7b0;padding:10px 14px;border-radius:12px;z-index:30;font-size:13px}
+#arStat{font-size:12px;color:var(--mut)}
+@media (min-width:820px){#bottom{max-width:760px;margin:0 auto;width:100%}}
+</style>
+<script type="importmap">
+{"imports":{
+ "three":"https://unpkg.com/three@0.160.0/build/three.module.js",
+ "three/addons/":"https://unpkg.com/three@0.160.0/examples/jsm/",
+ "mindar-image-three":"https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-three.prod.js"
+}}
+</script>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="ar-container"></div>
+<div id="big" class="hidden"></div>
+<div id="toast" class="hidden"></div>
+
+<div id="ui">
+  <header>
+    <div class="ttl">Sublevel Caving<span id="sub">Maqueta interactiva · esquema, no a escala</span></div>
+    <div class="hb">
+      <button id="bLayers">Capas</button>
+      <button id="bGuide">Guía</button>
+      <button id="bAdj" class="hidden">Ajustar</button>
+      <button id="bAR" class="acc">Modo AR</button>
+    </div>
+  </header>
+
+  <div id="layers" class="panel hidden">
+    <h3>Capas visibles</h3>
+    <label><input type="checkbox" data-l="rock" checked> Roca de caja (transparente)</label>
+    <label><input type="checkbox" data-l="ore" checked> Cuerpo mineralizado</label>
+    <label><input type="checkbox" data-l="caved" checked> Zona hundida y mineral quebrado</label>
+    <label><input type="checkbox" data-l="rings" checked> Abanicos pre-perforados</label>
+    <label><input type="checkbox" data-l="labels" checked> Etiquetas</label>
+    <label><input type="checkbox" id="follow" checked> Cámara sigue a los equipos</label>
+  </div>
+
+  <div id="guide" class="panel hidden">
+    <h3>Colores sugeridos para pintar la maqueta</h3>
+    <p>Son los mismos del modelo digital, así lo físico y lo virtual se leen igual.</p>
+    <div class="sw" id="swatches"></div>
+    <h3>Marcador para la cámara</h3>
+    <p>La cámara no reconoce la maqueta pintada; reconoce una imagen plana. Imprime la imagen marcador (hoja 1 del PDF) en papel mate y pégala plana en la parte alta del panel lateral derecho, sin pintar encima. El papel brillante refleja la luz y hace que se pierda el seguimiento.</p>
+    
+    <h3>Uso en la exposición</h3>
+    <p>1. Escanea el QR de la maqueta. 2. Toca <b>Modo AR</b> y acepta la cámara. 3. Enfoca el marcador. 4. Toca 1, 2 o 3. Con <b>Ajustar</b> calzas tamaño y posición sobre la maqueta; se guarda en el celular.</p>
+  </div>
+
+  <div id="arAdj" class="panel hidden">
+    <h3>Ajuste sobre el marcador</h3>
+    <label><input type="checkbox" id="adjH"> Marcador horizontal (sobre la mesa)</label>
+    <div class="rng"><span>Escala</span><input type="range" id="adjS" min="0.2" max="3" step="0.01"><output></output></div>
+    <div class="rng"><span>Mover X</span><input type="range" id="adjX" min="-1.5" max="1.5" step="0.01"><output></output></div>
+    <div class="rng"><span>Mover Y</span><input type="range" id="adjY" min="-1.5" max="1.5" step="0.01"><output></output></div>
+    <div class="rng"><span>Mover Z</span><input type="range" id="adjZ" min="-1.5" max="1.5" step="0.01"><output></output></div>
+    <div class="rng"><span>Girar</span><input type="range" id="adjR" min="-180" max="180" step="1"><output></output></div>
+    <div class="row"><button id="adjReset">Restablecer</button><span id="arStat"></span></div>
+  </div>
+
+  <div id="bottom">
+    <div id="cap">
+      <div id="capStep">Vista general</div>
+      <div id="capTitle">Método de hundimiento por subniveles</div>
+      <div id="capText">Elige una animación. Arrastra para girar, pellizca para acercar.</div>
+      <div id="dil" class="hidden">Contenido del balde (ilustrativo)<div class="db"><i class="o" id="dilO"></i><i class="w" id="dilW"></i></div></div>
+      <div class="bar"><i id="prog"></i></div>
+    </div>
+    <div id="ctrl" class="row">
+      <button id="bPlay">Pausa</button><button id="bRe">Repetir</button><button id="bSpd">1x</button>
+      <span class="sp" id="tm"></span>
+    </div>
+    <nav>
+      <button data-a="a1"><b>1</b>Perforación y tronadura</button>
+      <button data-a="a2"><b>2</b>Carguío y extracción</button>
+      <button data-a="a3"><b>3</b>Ingreso por rampa</button>
+      <button data-a="ov" class="full on">Vista general</button>
+    </nav>
+  </div>
+</div>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+/* ================= CONFIG ================= */
+const CFG = {
+  targetLocal: 'targets.mind',
+  targetExample: 'https://cdn.jsdelivr.net/gh/hiukim/mind-ar-js@1.2.5/examples/image-tracking/assets/card-example/card.mind'
+};
+const COL = {
+  rock:0x9aa3ab, ore:0xe08a2e, oreBroken:0xd0782c, waste:0x7b7066, tunnel:0xefe9dd,
+  ramp:0x3b8ae6, orepass:0xd23c2e, equip:0xf2b705, explo:0xff3b30, ring:0xe8dcc8, draw:0xffd54a
+};
+const PAINT = [
+  [COL.rock,'Roca de caja (piso y techo)','gris cemento claro'],
+  [COL.ore,'Cuerpo mineralizado','ocre / naranja'],
+  [COL.waste,'Zona hundida (estéril)','marrón grisáceo; pega grava fina para textura'],
+  [COL.oreBroken,'Mineral tronado en el frente','naranja tostado'],
+  [COL.tunnel,'Galerías y cruzados (arcos)','blanco hueso, resalta las aberturas'],
+  [COL.ramp,'Rampa','azul'],
+  [COL.orepass,'Echadero (ore pass)','rojo'],
+  [COL.equip,'Equipos (jumbo, LHD)','amarillo'],
+];
+
+/* ================= GEOMETRÍA DEL MÉTODO ================= */
+const LV = [1.00, 0.75, 0.50, 0.25];            // pisos de subnivel (y)
+const LVN = ['Subnivel 1 · agotado','Subnivel 2 · producción','Subnivel 3 · preparación','Subnivel 4 · desarrollo'];
+const SURF = 1.25;
+const ORE = {x0:-0.5, x1:0.5, z0:-0.20, z1:0.25};
+const ZFW = -0.28;                                // galería en caja piso
+const XA = [-0.3, 0, 0.3], XB = [-0.45, -0.15, 0.15, 0.45];
+const ACT_X = 0.15, ACT_Y = LV[1];
+const BURDEN = 0.05, ZB0 = 0.04, ZR = ZB0 - BURDEN; // frente (brow) y anillo activo
+const BROWS2 = [0.06, 0.0, ZB0, 0.08];            // frentes en subnivel 2 (por cruzado XB)
+const DEV4 = [0.22, 0.05, -0.08, 0.15];           // avance en subnivel 4
+const OP = {x:0.32, z:-0.36, r:0.022};            // echadero
+const XS = 0.54;                                  // x de accesos de rampa
+
+/* ================= UTILIDADES ================= */
+const V = (x,y,z)=>new THREE.Vector3(x,y,z);
+const clamp=(x,a,b)=>Math.min(b,Math.max(a,x));
+const sstep=x=>{x=clamp(x,0,1);return x*x*(3-2*x)};
+const seg=(t,a,b)=>clamp((t-a)/(b-a),0,1);
+const lerp=(a,b,f)=>a+(b-a)*f;
+function rng(seed){return function(){seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+
+class Path{
+  constructor(p){this.p=p;this.L=[0];for(let i=1;i<p.length;i++)this.L.push(this.L[i-1]+p[i].distanceTo(p[i-1]));this.len=this.L[this.L.length-1]}
+  at(u,o=new THREE.Vector3()){const d=clamp(u,0,1)*this.len;let i=1;while(i<this.L.length-1&&this.L[i]<d)i++;const a=this.L[i-1],b=this.L[i];return o.lerpVectors(this.p[i-1],this.p[i],b>a?(d-a)/(b-a):0)}
+  tan(u,o=new THREE.Vector3()){const e=0.012/Math.max(this.len,0.01);let a=clamp(u-e,0,1),b=clamp(u+e,0,1);if(b-a<1e-6){a=Math.max(0,b-2*e)}return o.subVectors(this.at(b),this.at(a)).normalize()}
+  closestU(v){let bi=0,bd=1e9;this.p.forEach((q,i)=>{const d=q.distanceToSquared(v);if(d<bd){bd=d;bi=i}});return this.L[bi]/this.len}
+}
+function rounded(w,r=0.035,n=8){
+  const out=[w[0].clone()];
+  for(let i=1;i<w.length-1;i++){
+    const A=w[i-1],B=w[i],C=w[i+1];const d1=B.clone().sub(A),d2=C.clone().sub(B);
+    const l1=d1.length(),l2=d2.length();d1.normalize();d2.normalize();
+    const rr=Math.min(r,l1*0.45,l2*0.45);
+    const P0=B.clone().addScaledVector(d1,-rr),P2=B.clone().addScaledVector(d2,rr);
+    for(let k=0;k<=n;k++){const t=k/n;out.push(P0.clone().multiplyScalar((1-t)*(1-t)).addScaledVector(B,2*(1-t)*t).addScaledVector(P2,t*t))}
+  }
+  out.push(w[w.length-1].clone());
+  const d=[out[0]];
+  for(let i=1;i<out.length;i++){const a=out[i-1],b=out[i];const m=Math.max(1,Math.ceil(a.distanceTo(b)/0.02));for(let k=1;k<=m;k++)d.push(a.clone().lerp(b,k/m))}
+  return new Path(d);
+}
+
+/* ================= ESCENA ================= */
+const canvas=document.getElementById('c');
+const renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.setSize(innerWidth,innerHeight);
+const scene=new THREE.Scene();
+const camera=new THREE.PerspectiveCamera(40,innerWidth/innerHeight,0.01,50);
+camera.position.set(1.45,1.35,1.65);
+const controls=new OrbitControls(camera,renderer.domElement);
+controls.enableDamping=true;controls.target.set(0,0.6,-0.05);controls.minDistance=0.25;controls.maxDistance=6;
+controls.autoRotate=true;controls.autoRotateSpeed=0.6;
+let userCam=false;
+controls.addEventListener('start',()=>{userCam=true;controls.autoRotate=false;camTween=null});
+
+function addLights(sc){
+  sc.add(new THREE.HemisphereLight(0xeef3ff,0x3a3328,1.7));
+  const d=new THREE.DirectionalLight(0xffffff,2.2);d.position.set(1.5,3,2);sc.add(d);
+  const d2=new THREE.DirectionalLight(0xffe6c0,0.8);d2.position.set(-2,1,-1.5);sc.add(d2);
+}
+addLights(scene);
+
+const holder=new THREE.Group(), adj=new THREE.Group(), model=new THREE.Group();
+holder.add(adj);adj.add(model);scene.add(holder);
+const G={rock:new THREE.Group(),ore:new THREE.Group(),caved:new THREE.Group(),rings:new THREE.Group(),labels:new THREE.Group()};
+Object.values(G).forEach(g=>model.add(g));
+
+const MSM=(o)=>new THREE.MeshStandardMaterial(Object.assign({roughness:.85,metalness:0},o));
+
+/* ---- roca y mineral ---- */
+function boxMesh(x0,x1,y0,y1,z0,z1,mat){const m=new THREE.Mesh(new THREE.BoxGeometry(x1-x0,y1-y0,z1-z0),mat);m.position.set((x0+x1)/2,(y0+y1)/2,(z0+z1)/2);return m}
+const matRock=MSM({color:COL.rock,transparent:true,opacity:.10,depthWrite:false,roughness:1});
+const rockBox=boxMesh(-0.6,0.6,0,SURF,-0.55,0.40,matRock);rockBox.renderOrder=3;G.rock.add(rockBox);
+const rockEdges=new THREE.LineSegments(new THREE.EdgesGeometry(rockBox.geometry),new THREE.LineBasicMaterial({color:0xb8c2cc,transparent:true,opacity:.45}));
+rockEdges.position.copy(rockBox.position);G.rock.add(rockEdges);
+const matOre=MSM({color:COL.ore,transparent:true,opacity:.26,depthWrite:false,emissive:COL.ore,emissiveIntensity:.08});
+const oreLow=boxMesh(ORE.x0,ORE.x1,0.0,LV[1],ORE.z0,ORE.z1,matOre);oreLow.renderOrder=1;G.ore.add(oreLow);
+const COLS2=[{x0:-0.5,x1:-0.3,b:BROWS2[0]},{x0:-0.3,x1:0,b:BROWS2[1]},{x0:0,x1:0.3,b:ZR},{x0:0.3,x1:0.5,b:BROWS2[3]}];
+COLS2.forEach(c=>{const m=boxMesh(c.x0,c.x1,LV[1],LV[0],ORE.z0,c.b,matOre);m.renderOrder=1;G.ore.add(m)});
+const oreEdges=new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.BoxGeometry(ORE.x1-ORE.x0,LV[0],ORE.z1-ORE.z0)),new THREE.LineBasicMaterial({color:COL.ore,transparent:true,opacity:.5}));
+oreEdges.position.set(0,LV[0]/2,(ORE.z0+ORE.z1)/2);G.ore.add(oreEdges);
+
+/* ---- tajada del anillo activo (prisma con forma de abanico) ---- */
+const RING={half:0.15,sh:0.27,top:0.47};
+const slabShape=new THREE.Shape();
+slabShape.moveTo(-RING.half,0);slabShape.lineTo(RING.half,0);slabShape.lineTo(RING.half,RING.sh);slabShape.lineTo(0,RING.top);slabShape.lineTo(-RING.half,RING.sh);slabShape.lineTo(-RING.half,0);
+const matSlab=MSM({color:COL.ore,transparent:true,opacity:.62,depthWrite:false,emissive:0x000000});
+const slab=new THREE.Mesh(new THREE.ExtrudeGeometry(slabShape,{depth:BURDEN,bevelEnabled:false}),matSlab);
+slab.position.set(ACT_X,ACT_Y,ZR);slab.renderOrder=2;model.add(slab);
+
+/* ---- túneles (vista en corte: se ve el interior) ---- */
+function arch(w=0.056,hw=0.032,n=10){const P=[[-w/2,0],[w/2,0],[w/2,hw]];for(let i=1;i<n;i++){const a=Math.PI*i/n;P.push([Math.cos(a)*w/2,hw+Math.sin(a)*w/2])}P.push([-w/2,hw]);return P}
+const PROF=arch(), PROF_R=arch(0.062,0.034);
+function sweep(centers,prof){
+  const pos=[],idx=[],np=prof.length;
+  for(let i=0;i<centers.length;i++){
+    const c=centers[i];const t=(i<centers.length-1?centers[i+1].clone().sub(c):c.clone().sub(centers[i-1]));t.y=0;
+    if(t.lengthSq()<1e-10)t.set(1,0,0);t.normalize();const s=V(-t.z,0,t.x);
+    for(const [u,v] of prof)pos.push(c.x+s.x*u,c.y+v,c.z+s.z*u);
+  }
+  for(let i=0;i<centers.length-1;i++)for(let j=0;j<np;j++){const a=i*np+j,b=i*np+(j+1)%np,c=(i+1)*np+j,d=(i+1)*np+(j+1)%np;idx.push(a,c,b,b,c,d)}
+  // orientación: el piso (prof[0]->prof[1]) debe tener normal hacia abajo
+  const P=k=>V(pos[3*k],pos[3*k+1],pos[3*k+2]);
+  const n=new THREE.Vector3().crossVectors(P(idx[1]).sub(P(idx[0])),P(idx[2]).sub(P(idx[0])));
+  if(n.y>0)for(let k=0;k<idx.length;k+=3){const tmp=idx[k+1];idx[k+1]=idx[k+2];idx[k+2]=tmp}
+  const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));g.setIndex(idx);g.computeVertexNormals();return g;
+}
+const matTun=LV.map((_,k)=>MSM({color:COL.tunnel,side:THREE.BackSide,emissive:0x000000,transparent:k===0,opacity:k===0?.45:1}));
+const matGhost=new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:.10,depthWrite:false});
+const matRamp=MSM({color:COL.ramp,side:THREE.BackSide,emissive:COL.ramp,emissiveIntensity:.12});
+const matRampGhost=new THREE.MeshBasicMaterial({color:COL.ramp,transparent:true,opacity:.18,depthWrite:false});
+const tunnels=new THREE.Group();model.add(tunnels);
+function tunnel(pts,mat,ghost=matGhost,prof=PROF){const g=sweep(pts,prof);const m=new THREE.Mesh(g,mat);tunnels.add(m);const gh=new THREE.Mesh(g,ghost);gh.renderOrder=4;tunnels.add(gh);return m}
+
+LV.forEach((y,k)=>{
+  const m=matTun[k];
+  tunnel([V(-XS,y,ZFW),V(XS,y,ZFW)],m);                                  // galería caja piso
+  tunnel([V(k%2?XS:-XS,y,-0.42),V(k%2?XS:-XS,y,ZFW)],m);                  // acceso desde rampa
+  tunnel([V(OP.x,y,ZFW),V(OP.x,y,-0.34)],m);                              // ramal al echadero
+  const xs=k%2?XB:XA;
+  xs.forEach((x,i)=>{
+    let z1=0.22; if(k===0)z1=ORE.z0; if(k===1)z1=BROWS2[i]; if(k===3)z1=DEV4[i];
+    tunnel([V(x,y,ZFW),V(x,y,z1)],m);
+  });
+});
+
+/* ---- rampa ---- */
+const RW=[V(0.86,SURF-0.075,-0.50),V(0.60,SURF-0.075,-0.50),V(-XS,LV[0],-0.50),V(-XS,LV[0],-0.42),V(XS,LV[1],-0.42),V(XS,LV[1],-0.50),V(-XS,LV[2],-0.50),V(-XS,LV[2],-0.42),V(XS,LV[3],-0.42)];
+const rampPath=rounded(RW.slice(1),0.035);
+tunnel(rampPath.p,matRamp,matRampGhost,PROF_R);
+const pad=boxMesh(0.6,0.9,SURF-0.09,SURF-0.075,-0.62,-0.38,MSM({color:0x4a5148}));model.add(pad);
+const matConc=MSM({color:0xc9c5bb});
+model.add(boxMesh(0.60,0.615,SURF-0.075,SURF-0.005,-0.538,-0.53,matConc),boxMesh(0.60,0.615,SURF-0.075,SURF-0.005,-0.47,-0.462,matConc),boxMesh(0.60,0.615,SURF-0.012,SURF,-0.538,-0.462,matConc));
+
+/* ---- echadero ---- */
+const matOP=MSM({color:COL.orepass,transparent:true,opacity:.38,depthWrite:false,side:THREE.DoubleSide,emissive:COL.orepass,emissiveIntensity:.15});
+const orePass=new THREE.Mesh(new THREE.CylinderGeometry(OP.r,OP.r,LV[0]+0.03,16,1,true),matOP);
+orePass.position.set(OP.x,(LV[0]+0.03)/2+0.02,OP.z);orePass.renderOrder=2;model.add(orePass);
+
+/* ---- abanicos ---- */
+const ANG=[-72,-54,-36,-18,0,18,36,54,72].map(a=>a*Math.PI/180);
+function holeLen(th){const s=Math.abs(Math.sin(th)),c=Math.cos(th);const top=RING.top-0.05,sh=RING.sh-0.05;const slope=(top-sh)/RING.half;const t2=top/(c+slope*s);return s>1e-4?Math.min(RING.half/s,t2):t2}
+const ringPts=[];
+function addRing(x,y,z){const O=V(x,y+0.055,z);ANG.forEach(th=>{const L=holeLen(th);ringPts.push(O.x,O.y,O.z,O.x+Math.sin(th)*L,O.y+Math.cos(th)*L,O.z)})}
+XA.forEach(x=>{for(let z=0.20;z>-0.16;z-=BURDEN)addRing(x,LV[2],z)});
+XB.forEach((x,i)=>{const b=(i===2?ZR:BROWS2[i]);for(let k=1;k<=3;k++)addRing(x,LV[1],b-k*BURDEN)});
+const rgG=new THREE.BufferGeometry();rgG.setAttribute('position',new THREE.Float32BufferAttribute(ringPts,3));
+G.rings.add(new THREE.LineSegments(rgG,new THREE.LineBasicMaterial({color:COL.ring,transparent:true,opacity:.42})));
+
+/* ---- fragmentos de roca (instanciados) ---- */
+const chunkGeo=new THREE.IcosahedronGeometry(1,0);
+const chunkMat=MSM({color:0xffffff,roughness:.95,flatShading:true});
+const dummy=new THREE.Object3D();const tmpC=new THREE.Color();
+function chunkSet(n){const m=new THREE.InstancedMesh(chunkGeo,chunkMat,n);m.frustumCulled=false;m.instanceMatrix.setUsage(THREE.DynamicDrawUsage);for(let i=0;i<n;i++){m.setColorAt(i,tmpC.set(0xffffff))}return m}
+function setChunk(m,i,p,s,rx=0,ry=0){dummy.position.copy(p);dummy.rotation.set(rx,ry,rx*0.7);dummy.scale.setScalar(s);dummy.updateMatrix();m.setMatrixAt(i,dummy.matrix)}
+function colorChunk(m,i,hex,j=0){tmpC.set(hex);tmpC.offsetHSL(0,0,j);m.setColorAt(i,tmpC)}
+
+// zona hundida estática
+(function(){
+  const r=rng(7);const pts=[];
+  const inSlab=(x,y,z)=>x>ACT_X-0.16&&x<ACT_X+0.16&&z>ZR-0.012&&z<ZB0+0.012&&y<ACT_Y+RING.top+0.01;
+  const push=(x,y,z,ore)=>{if(!inSlab(x,y,z))pts.push([x,y,z,ore])};
+  for(let i=0;i<300;i++){const x=lerp(-0.52,0.52,r()),y=lerp(LV[0]+0.01,SURF-0.015,r()),z=lerp(ORE.z0,0.38,r());push(x,y,z,r()<0.12&&y<LV[0]+0.08)}
+  COLS2.forEach(c=>{const zb=c.x0===0?ZB0:c.b;const n=Math.round((c.x1-c.x0)*(ORE.z1-zb)*900);for(let i=0;i<n;i++){push(lerp(c.x0+0.01,c.x1-0.01,r()),lerp(LV[1]+0.01,LV[0],r()),lerp(zb+0.008,ORE.z1,r()),r()<0.55)}});
+  for(let i=0;i<55;i++)push(lerp(-0.52,0.52,r()),lerp(LV[1]+0.01,LV[0],r()),lerp(ORE.z1,0.38,r()),false);
+  const m=chunkSet(pts.length);
+  pts.forEach((p,i)=>{setChunk(m,i,V(p[0],p[1],p[2]),lerp(0.009,0.019,r()),r()*6,r()*6);colorChunk(m,i,p[3]?COL.oreBroken:COL.waste,(r()-0.5)*0.08)});
+  G.caved.add(m);
+  const crater=new THREE.Mesh(new THREE.PlaneGeometry(1.04,0.6),MSM({color:0x5a4e44,transparent:true,opacity:.55,depthWrite:false,side:THREE.DoubleSide}));
+  crater.rotation.x=-Math.PI/2;crater.position.set(0,SURF-0.012,0.09);G.caved.add(crater);
+})();
+
+/* ---- pila de mineral en el frente activo ---- */
+const pileHeap=new THREE.Mesh(new THREE.SphereGeometry(1,16,10,0,Math.PI*2,0,Math.PI/2),MSM({color:COL.oreBroken,flatShading:true}));
+pileHeap.scale.set(0.026,0.03,0.055);pileHeap.position.set(ACT_X,ACT_Y,ZR-0.012);model.add(pileHeap);
+
+/* ---- fragmentos de la tronadura ---- */
+const NB=70;const blast=chunkSet(NB);model.add(blast);
+const BL=(function(){const r=rng(11),a=[];
+  for(let i=0;i<NB;i++){
+    let s;do{s=V(ACT_X+lerp(-0.14,0.14,r()),ACT_Y+lerp(0.01,0.44,r()),lerp(ZR+0.004,ZB0-0.004,r()))}while(Math.abs(s.x-ACT_X)*1.33+(s.y-ACT_Y)>RING.top+0.02);
+    let e;
+    if(i<26){const f=r();e=V(ACT_X+lerp(-0.022,0.022,r()),ACT_Y+0.007+(1-f)*0.03*r(),ZR+0.01-f*0.085)}
+    else e=V(s.x+lerp(-0.01,0.01,r()),Math.max(ACT_Y+0.01,s.y-lerp(0.0,0.05,r())),s.z+lerp(0.0,0.025,r()));
+    a.push({s,e,sz:lerp(0.008,0.016,r()),d:r()*0.3,du:0.6+r()*0.8,arc:0.02+r()*0.05,rx:r()*6,ry:r()*6,j:(r()-0.5)*0.08});
+    colorChunk(blast,i,COL.oreBroken,a[i].j);
+  }return a})();
+function blastState(f){ // f: null -> oculto ; número >=0 tiempo desde la tronadura ; Infinity -> asentado
+  for(let i=0;i<NB;i++){const b=BL[i];
+    if(f===null){setChunk(blast,i,b.s,0);continue}
+    const k=sstep((f-b.d)/b.du);const p=b.s.clone().lerp(b.e,k);p.y+=Math.sin(Math.PI*k)*b.arc;
+    setChunk(blast,i,p,b.sz,b.rx+k*3,b.ry+k*2)}
+  blast.instanceMatrix.needsUpdate=true;
+}
+
+/* ---- chispas y polvo ---- */
+const NS=90;const sparkPos=new Float32Array(NS*3);const sparkV=[];{const r=rng(3);for(let i=0;i<NS;i++){sparkV.push(V(lerp(-1,1,r())*0.25,lerp(0.05,1,r())*0.3,lerp(0.1,1,r())*0.35))}}
+const sparkG=new THREE.BufferGeometry();sparkG.setAttribute('position',new THREE.BufferAttribute(sparkPos,3));
+const sparkM=new THREE.PointsMaterial({color:0xffc861,size:0.014,transparent:true,opacity:0,blending:THREE.AdditiveBlending,depthWrite:false});
+const sparks=new THREE.Points(sparkG,sparkM);sparks.frustumCulled=false;model.add(sparks);
+const dustM=new THREE.MeshBasicMaterial({color:0xb9ad9f,transparent:true,opacity:0,depthWrite:false});
+const dust=[];{const r=rng(5);for(let i=0;i<7;i++){const d=new THREE.Mesh(new THREE.SphereGeometry(1,12,8),dustM);d.userData.o=V(lerp(-0.08,0.08,r()),lerp(0.05,0.35,r()),lerp(-0.02,0.06,r()));model.add(d);dust.push(d)}}
+const flash=new THREE.PointLight(0xffb347,0,1.2,2);flash.position.set(ACT_X,ACT_Y+0.2,ZR+0.05);model.add(flash);
+const SC=V(ACT_X,ACT_Y+0.18,(ZR+ZB0)/2);
+function fx(f){ // f: tiempo desde la tronadura o null
+  const on=f!==null&&f>=0&&f<4;
+  flash.intensity=on?3.5*Math.exp(-f*5):0;
+  sparkM.opacity=on?clamp(1-f/1.3,0,1):0;
+  for(let i=0;i<NS;i++){const v=sparkV[i];const tt=on?Math.min(f,1.3):0;sparkPos[3*i]=SC.x+v.x*tt;sparkPos[3*i+1]=SC.y+v.y*tt-0.5*0.35*tt*tt;sparkPos[3*i+2]=SC.z+v.z*tt}
+  sparkG.attributes.position.needsUpdate=true;
+  dustM.opacity=on?0.32*clamp(1-f/3.5,0,1)*clamp(f*4,0,1):0;
+  dust.forEach((d,i)=>{const s=on?0.02+0.11*sstep(f/3):0.001;d.scale.setScalar(s);d.position.copy(SC).add(d.userData.o)});
+}
+
+/* ---- taladros del anillo activo (animación 1) ---- */
+const holes=[];const holeGeo=new THREE.CylinderGeometry(0.0028,0.0028,1,6);holeGeo.translate(0,0.5,0);
+const RO=V(ACT_X,ACT_Y+0.055,ZR);
+ANG.forEach(th=>{const m=new THREE.Mesh(holeGeo,MSM({color:0xf3eee4,emissive:0x000000}));m.position.copy(RO);m.rotation.z=-th;m.userData.L=holeLen(th);model.add(m);holes.push(m)});
+
+/* ---- elipsoide de extracción ---- */
+const ellip=new THREE.Mesh(new THREE.SphereGeometry(1,28,18),MSM({color:COL.draw,transparent:true,opacity:.20,depthWrite:false,emissive:COL.draw,emissiveIntensity:.25}));
+ellip.position.set(ACT_X,ACT_Y+0.2,ZR+0.02);ellip.renderOrder=5;model.add(ellip);
+const NF=26;const flow=chunkSet(NF);model.add(flow);
+const FL=(function(){const r=rng(21),a=[];for(let i=0;i<NF;i++){const ph=r()*Math.PI*2,el=lerp(0.15,1,r());a.push({ph,el,off:r(),sz:lerp(0.008,0.014,r()),j:(r()-0.5)*0.08})}return a})();
+
+/* ---- balde: fragmentos ---- */
+const NK=11;const bucketChunks=chunkSet(NK);model.add(bucketChunks);
+const BK=(function(){const r=rng(31),a=[];for(let i=0;i<NK;i++)a.push({l:V(lerp(-0.012,0.012,r()),lerp(0.006,0.014,r()),lerp(0.006,0.018,r())),src:V(ACT_X+lerp(-0.02,0.02,r()),ACT_Y+lerp(0.01,0.03,r()),ZR-lerp(0.0,0.05,r())),sz:lerp(0.007,0.011,r()),j:(r()-0.5)*0.08,dd:r()*0.3});return a})();
+
+/* ================= EQUIPOS ================= */
+function bx(parent,w,h,d,x,y,z,mat){const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat);m.position.set(x,y,z);parent.add(m);return m}
+const mY=MSM({color:COL.equip,roughness:.55}),mD=MSM({color:0x262b33,roughness:.8}),mW=MSM({color:0xf4f4f2,roughness:.5}),mGl=MSM({color:0x6fa8d6,roughness:.2,metalness:.3});
+const wheelGeo=new THREE.CylinderGeometry(0.0085,0.0085,0.007,12);wheelGeo.rotateZ(Math.PI/2);
+function wheels(g,xs,zs,y=0.0085){xs.forEach(x=>zs.forEach(z=>{const w=new THREE.Mesh(wheelGeo,mD);w.position.set(x,y,z);g.add(w)}))}
+function makeJumbo(){const g=new THREE.Group();g.rotation.order='YXZ';
+  bx(g,0.032,0.014,0.07,0,0.015,-0.005,mY);bx(g,0.016,0.016,0.018,-0.008,0.03,-0.025,mD);bx(g,0.012,0.012,0.012,-0.008,0.031,-0.025,mGl);
+  bx(g,0.02,0.01,0.02,0.006,0.025,0.02,mY);wheels(g,[-0.018,0.018],[-0.028,0.022]);
+  const stub=bx(g,0.005,0.005,0.03,0.0,0.03,0.04,mD);g.userData.stub=stub;return g}
+function makeLHD(){const g=new THREE.Group();g.rotation.order='YXZ';
+  bx(g,0.032,0.016,0.042,0,0.016,-0.022,mY);bx(g,0.028,0.009,0.02,0,0.028,-0.034,mY);
+  bx(g,0.012,0.014,0.014,-0.011,0.03,-0.004,mD);bx(g,0.013,0.008,0.012,-0.011,0.031,-0.004,mGl);
+  bx(g,0.028,0.012,0.03,0,0.013,0.016,mY);wheels(g,[-0.018,0.018],[-0.028,0.022]);
+  const bk=new THREE.Group();bk.position.set(0,0.006,0.032);
+  bx(bk,0.036,0.002,0.024,0,0,0.012,mD);bx(bk,0.036,0.018,0.002,0,0.009,0,mD);bx(bk,0.002,0.012,0.024,-0.018,0.006,0.012,mD);bx(bk,0.002,0.012,0.024,0.018,0.006,0.012,mD);
+  g.add(bk);g.userData.bk=bk;return g}
+function makeTruck(){const g=new THREE.Group();g.rotation.order='YXZ';
+  bx(g,0.03,0.012,0.07,0,0.016,0,mW);bx(g,0.028,0.013,0.028,0,0.028,0.008,mW);bx(g,0.0285,0.008,0.02,0,0.03,0.01,mGl);
+  const lb=bx(g,0.024,0.003,0.004,0,0.036,0.012,MSM({color:0xff9a1f,emissive:0xff7a00,emissiveIntensity:1}));
+  g.userData.lb=lb;wheels(g,[-0.017,0.017],[-0.024,0.022]);return g}
+const jumbo=makeJumbo(),lhd=makeLHD(),truck=makeTruck();model.add(jumbo,lhd,truck);
+const boom=new THREE.Mesh(new THREE.CylinderGeometry(0.003,0.003,1,6),mY);model.add(boom);
+const feedGeo=new THREE.BoxGeometry(0.006,0.045,0.006);feedGeo.translate(0,-0.0225,0);
+const feed=new THREE.Mesh(feedGeo,mD);feed.position.copy(RO);model.add(feed);
+
+function place(o,path,u,rev=false){path.at(u,o.position);const t=path.tan(u);if(rev)t.negate();o.rotation.set(-Math.asin(clamp(t.y,-1,1)),Math.atan2(t.x,t.z),0)}
+function park(o,p,yaw){o.position.copy(p);o.rotation.set(0,yaw,0)}
+
+/* rutas */
+const PJ=rounded([V(0.50,ACT_Y,ZFW),V(ACT_X,ACT_Y,ZFW),V(ACT_X,ACT_Y,ZR-0.11)]);
+const PA=rounded([V(0.42,ACT_Y,ZFW),V(ACT_X,ACT_Y,ZFW),V(ACT_X,ACT_Y,ZR-0.12)]);
+const PB=rounded([V(ACT_X,ACT_Y,ZR-0.12),V(ACT_X,ACT_Y,ZFW),V(0.04,ACT_Y,ZFW)]);
+const PC=rounded([V(0.04,ACT_Y,ZFW),V(0.30,ACT_Y,ZFW),V(OP.x,ACT_Y,-0.30)],0.03);
+const PD=rounded([V(OP.x,ACT_Y,-0.30),V(0.34,ACT_Y,ZFW),V(0.42,ACT_Y,ZFW)],0.03);
+const PT=rounded([RW[0],...RW.slice(1),V(XS,LV[3],ZFW),V(0.30,LV[3],ZFW)],0.035);
+
+/* ================= ETIQUETAS ================= */
+function label(text,pos,accent='#f2b705',h=0.042){
+  const c=document.createElement('canvas');const ctx=c.getContext('2d');const fs=38;
+  ctx.font=`600 ${fs}px system-ui,-apple-system,Segoe UI,Roboto,sans-serif`;const w=Math.ceil(ctx.measureText(text).width)+44;
+  c.width=w;c.height=60;ctx.font=`600 ${fs}px system-ui,-apple-system,Segoe UI,Roboto,sans-serif`;
+  ctx.fillStyle='rgba(14,18,24,.84)';const r=14;ctx.beginPath();ctx.moveTo(r,0);ctx.arcTo(w,0,w,60,r);ctx.arcTo(w,60,0,60,r);ctx.arcTo(0,60,0,0,r);ctx.arcTo(0,0,w,0,r);ctx.fill();
+  ctx.fillStyle=accent;ctx.fillRect(0,12,7,36);ctx.fillStyle='#fff';ctx.textBaseline='middle';ctx.fillText(text,24,32);
+  const tex=new THREE.CanvasTexture(c);tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=4;
+  const s=new THREE.Sprite(new THREE.SpriteMaterial({map:tex,depthTest:false,transparent:true}));
+  s.scale.set(h*w/60,h,1);s.position.copy(pos);s.renderOrder=999;G.labels.add(s);return s;
+}
+const hex=n=>'#'+n.toString(16).padStart(6,'0');
+LV.forEach((y,k)=>label(LVN[k],V(-0.80,y+0.03,ZFW),k===1?'#f2b705':'#9aa6b2',0.038));
+label('Zona hundida (estéril)',V(-0.1,SURF+0.06,0.22),hex(COL.waste));
+label('Cuerpo mineralizado',V(-0.28,0.36,0.30),hex(COL.ore));
+label('Galería en caja piso',V(-0.2,LV[3]+0.1,ZFW),hex(COL.tunnel));
+label('Cruzados de producción',V(-0.15,LV[1]+0.11,0.1),hex(COL.tunnel));
+label('Abanicos pre-perforados',V(0.0,LV[2]+0.36,0.14),hex(COL.ring));
+label('Rampa',V(0.05,LV[1]+0.13,-0.5),hex(COL.ramp));
+label('Echadero',V(OP.x+0.05,0.15,OP.z),hex(COL.orepass));
+label('Portal',V(0.76,SURF+0.03,-0.5),hex(COL.ramp));
+label('Caja techo',V(0.3,0.12,0.42),'#9aa6b2',0.034);
+label('Caja piso',V(-0.3,0.12,-0.56),'#9aa6b2',0.034);
+const lblBrow=label('Frente (brow)',V(ACT_X+0.1,ACT_Y+0.07,ZR+0.03),'#ff9a1f',0.036);
+const lblEll=label('Elipsoide de extracción',V(ACT_X+0.02,ACT_Y+0.46,ZR+0.03),hex(COL.draw),0.036);
+
+/* ================= UI ================= */
+const $=id=>document.getElementById(id);
+$('swatches').innerHTML=PAINT.map(p=>`<i style="background:${hex(p[0])}"></i><span><b>${p[1]}</b> — ${p[2]}</span>`).join('');
+let toastT=0;function toast(msg,ms=6000){const t=$('toast');t.textContent=msg;t.classList.remove('hidden');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.add('hidden'),ms)}
+function togglePanel(id){['layers','guide','arAdj'].forEach(p=>{if(p!==id)$(p).classList.add('hidden')});$(id).classList.toggle('hidden')}
+$('bLayers').onclick=()=>togglePanel('layers');$('bGuide').onclick=()=>togglePanel('guide');$('bAdj').onclick=()=>togglePanel('arAdj');
+document.querySelectorAll('#layers input[data-l]').forEach(cb=>cb.onchange=()=>{G[cb.dataset.l].visible=cb.checked});
+
+/* ================= ANIMACIONES ================= */
+const big=$('big');
+function setBig(s){if(s){big.textContent=s;big.classList.remove('hidden')}else big.classList.add('hidden')}
+function resetScene(){
+  jumbo.visible=true;slab.visible=false;holes.forEach(h=>h.visible=false);boom.visible=false;feed.visible=false;jumbo.userData.stub.visible=true;
+  blastState(Infinity);fx(null);pileHeap.visible=true;pileHeap.scale.set(0.026,0.03,0.055);
+  ellip.visible=false;lblEll.visible=false;lblBrow.visible=true;flow.visible=false;bucketChunks.visible=false;
+  model.position.set(0,0,0);matSlab.emissive.setHex(0);
+  matTun.forEach(m=>m.emissive.setHex(0));matRamp.emissiveIntensity=.12;truck.userData.lb.visible=true;
+  park(jumbo,V(-0.3,LV[2],ZFW),-Math.PI/2);park(lhd,V(-0.28,LV[1],ZFW),-Math.PI/2);lhd.userData.bk.rotation.x=0;park(truck,V(0.78,SURF-0.075,-0.5),-Math.PI/2);
+  $('dil').classList.add('hidden');setBig(null);
+}
+
+/* --- 1: perforación y tronadura --- */
+const TB=18;
+const A1={name:'1 · Perforación y tronadura',dur:27,cam:{p:V(0.78,1.08,0.72),t:V(0.12,0.86,-0.03)},
+  steps:[[0,'Ingreso del jumbo','El jumbo de perforación radial entra por la galería en caja piso hasta el cruzado de producción del subnivel 2.'],
+    [4,'Perforación del abanico','Se perforan taladros ascendentes en abanico (un anillo) desde el techo del cruzado. El abanico cubre el pilar entre cruzados y llega hasta el subnivel superior.'],
+    [13,'Carguío de explosivos','Los taladros se cargan con explosivo (en rojo) y el equipo y el personal se retiran a zona segura.'],
+    [16.5,'Tronadura','Se tronará un solo anillo, confinado contra el material ya hundido del frente.'],
+    [18,'Tronadura del anillo','El anillo se fragmenta y se expande hacia el frente del cruzado (brow).'],
+    [22.5,'Mineral quebrado','El mineral roto queda en el frente, con el estéril hundido encima. Listo para el carguío.']],
+  setup(){park(lhd,V(-0.32,LV[1],ZFW),-Math.PI/2)},
+  update(t){
+    const blasted=t>=TB;
+    slab.visible=!blasted;pileHeap.visible=t>TB+0.3;pileHeap.scale.set(0.026,0.03*sstep((t-TB-0.3)/1.6),0.055);
+    blastState(blasted?t-TB:null);fx(blasted?t-TB:null);lblBrow.visible=blasted;
+    // jumbo
+    if(t<4)place(jumbo,PJ,sstep(t/4));
+    else if(t<13.4)place(jumbo,PJ,1);
+    else place(jumbo,PJ,1-sstep((t-13.4)/3.2));
+    jumbo.visible=t<17;
+    const drilling=t>=4&&t<13.2;jumbo.userData.stub.visible=!drilling;boom.visible=feed.visible=drilling;
+    let ci=clamp(Math.floor(t-4),0,8);
+    holes.forEach((h,i)=>{
+      const t0=4+i;const g=t<t0+0.25?0:sstep((t-t0-0.25)/0.75);
+      h.visible=!blasted&&g>0.001;h.scale.y=h.userData.L*Math.max(g,0.001);
+      const red=t>=13+i*0.3;h.material.color.setHex(red?COL.explo:0xf3eee4);h.material.emissive.setHex(red?0x661008:0);
+    });
+    if(drilling){
+      const th0=ANG[Math.max(ci-1,0)],th1=ANG[ci];const k=sstep((t-4-ci)/0.25);const th=lerp(ci===0?th1:th0,th1,k);
+      feed.rotation.z=-th;
+      jumbo.updateMatrix();const F=V(0,0.03,0.045).applyMatrix4(jumbo.matrix);
+      const B=RO.clone().add(V(-Math.sin(th)*0.04,-Math.cos(th)*0.04,0));
+      const d=B.clone().sub(F);boom.position.copy(F).addScaledVector(d,0.5);boom.scale.set(1,d.length(),1);boom.quaternion.setFromUnitVectors(V(0,1,0),d.normalize());
+    }
+    // pulso del explosivo
+    matSlab.emissive.setHex(t>13&&!blasted?0xff4a1f:0);matSlab.emissiveIntensity=t>13?0.25+0.25*Math.sin(t*8):0;
+    setBig(t>=16.5&&t<18?String(3-Math.floor((t-16.5)/0.5)):null);
+    if(blasted&&t<TB+0.8){const a=0.006*(1-(t-TB)/0.8);model.position.set((Math.random()-.5)*a,(Math.random()-.5)*a,(Math.random()-.5)*a)}else model.position.set(0,0,0);
+  }};
+
+/* --- 2: carguío --- */
+const CY=12.5, WASTE=[0.15,0.55];
+const A2={name:'2 · Carguío y extracción',dur:28,cam:{p:V(0.86,1.12,0.42),t:V(0.22,0.8,-0.14)},
+  steps:[[0,'Ingreso del LHD','El cargador (scoop LHD) entra al cruzado hasta el punto de extracción en el frente.'],
+    [3,'Carguío en el frente','El balde toma mineral del frente; lo de arriba baja por gravedad y forma el elipsoide de extracción.'],
+    [6,'Transporte al echadero','El LHD retrocede a la galería en caja piso y lleva la carga al echadero.'],
+    [9.6,'Descarga','El mineral cae por el echadero hacia el nivel de transporte y chancado.'],
+    [12.5,'Segundo ciclo','Cada balde extraído deja bajar más estéril de la zona hundida.'],
+    [15.5,'Dilución','El estéril (gris) entra al flujo y se mezcla con el mineral: baja la ley del balde.'],
+    [25,'Cierre del punto de extracción','Cuando el estéril domina el balde se detiene la extracción y se tronará el siguiente anillo.']],
+  setup(){lblEll.visible=true;ellip.visible=true;park(jumbo,V(-0.34,LV[2],ZFW),-Math.PI/2)},
+  update(t){
+    const c=Math.min(Math.floor(t/CY),1);const tc=t-c*CY;const end=t>=2*CY;const wf=WASTE[c];
+    const bk=lhd.userData.bk;let bucketRot=0;
+    if(end){place(lhd,PD,1,true)}
+    else if(tc<3)place(lhd,PA,sstep(tc/3));
+    else if(tc<6){place(lhd,PA,1);bucketRot=tc<5.5?0.12:lerp(0.12,-0.5,sstep((tc-5.5)/0.5))}
+    else if(tc<7.6){place(lhd,PB,sstep((tc-6)/1.6),true);bucketRot=-0.5}
+    else if(tc<9.6){place(lhd,PC,sstep((tc-7.6)/2));bucketRot=-0.5}
+    else if(tc<11){place(lhd,PC,1);bucketRot=lerp(-0.5,0.9,sstep((tc-9.6)/0.6))}
+    else{place(lhd,PD,sstep((tc-11)/1.5),true);bucketRot=lerp(0.9,0,sstep((tc-11)/1))}
+    bk.rotation.x=bucketRot;lhd.updateMatrix();bk.updateMatrix();
+    // fragmentos en el balde
+    bucketChunks.visible=!end;
+    for(let i=0;i<NK;i++){const b=BK[i];const waste=i/NK<wf;colorChunk(bucketChunks,i,waste?COL.waste:COL.oreBroken,b.j);
+      const inB=b.l.clone().applyMatrix4(bk.matrix).applyMatrix4(lhd.matrix);
+      const ta=3.2+i*0.18+b.dd*0.2;let p,s=b.sz;
+      if(tc<ta)s=0,p=b.src;
+      else if(tc<ta+0.5)p=b.src.clone().lerp(inB,sstep((tc-ta)/0.5));
+      else if(tc<9.9+b.dd)p=inB;
+      else{const f=seg(tc,9.9+b.dd,11);const top=V(OP.x,ACT_Y+0.01,OP.z);
+        p=f<0.25?inB.clone().lerp(top,f/0.25):top.clone().setY(lerp(ACT_Y,0.04,(f-0.25)/0.75));if(f>=1)s=0}
+      setChunk(bucketChunks,i,p,s,i,i*2)}
+    bucketChunks.instanceMatrix.needsUpdate=true;if(bucketChunks.instanceColor)bucketChunks.instanceColor.needsUpdate=true;
+    // flujo gravitacional y elipsoide
+    const drawn=clamp((c+seg(tc,3,5.6))/2,0,1);const gS=end?1:0.45+0.55*drawn;
+    ellip.scale.set(0.075*gS,0.23*gS,0.05*gS);ellip.position.set(ACT_X,ACT_Y+0.012+0.23*gS,ZR+0.02);
+    lblEll.position.set(ACT_X+0.02,ACT_Y+0.04+0.46*gS,ZR+0.03);
+    const flowing=!end&&tc>=3&&tc<5.8;flow.visible=flowing;
+    if(flowing){for(let i=0;i<NF;i++){const f=FL[i];const waste=i/NF<wf;colorChunk(flow,i,waste?COL.waste:COL.oreBroken,f.j);
+      const ry=0.23*gS,rx=0.075*gS,rz=0.05*gS;const el=waste?lerp(0.75,1,f.el):f.el*0.85;
+      const st=V(ACT_X+Math.cos(f.ph)*rx*Math.sqrt(1-el*el),ACT_Y+0.012+ry+ry*el,ZR+0.02+Math.sin(f.ph)*rz*Math.sqrt(1-el*el));
+      const en=V(ACT_X+(f.off-0.5)*0.03,ACT_Y+0.02,ZR-0.005);const k=((tc-3)*0.55+f.off)%1;
+      setChunk(flow,i,st.lerp(en,k*k),f.sz,i+k*3,i)}
+      flow.instanceMatrix.needsUpdate=true;if(flow.instanceColor)flow.instanceColor.needsUpdate=true}
+    // barra de dilución
+    const showD=end||tc>=5.5;$('dil').classList.toggle('hidden',!showD);
+    const of=Math.round((1-wf)*100);$('dilO').style.width=of+'%';$('dilW').style.width=(100-of)+'%';
+    matTun[1].emissive.setHex(0);
+  }};
+
+/* --- 3: rampa --- */
+const STOPS=[V(-XS,LV[0],-0.46),V(XS,LV[1],-0.46),V(-XS,LV[2],-0.46)].map(v=>PT.closestU(v)).concat([1]);
+const VSP=0.28, PAUSE=2.8;
+const A3TL=(function(){const tl=[];let t=0,u=0;STOPS.forEach((us,k)=>{const d=(us-u)*PT.len/VSP;tl.push({t0:t,t1:t+d,u0:u,u1:us});t+=d;tl.push({t0:t,t1:t+PAUSE,u0:us,u1:us,stop:k});t+=PAUSE;u=us});return{tl,dur:t+0.5}})();
+const A3={name:'3 · Ingreso por rampa',dur:A3TL.dur,cam:{p:V(1.25,1.45,0.2),t:V(0.3,1.0,-0.45)},
+  steps:(function(){const s=[[0,'Portal de la rampa','Equipos y personal ingresan desde superficie por la bocamina.'],[2.2,'Rampa en caja piso','La rampa baja en zigzag por la caja piso, fuera del cuerpo mineralizado, y conecta todos los subniveles.']];
+    const txt=[['Acceso al subnivel 1','Subnivel agotado: ya fue tronado y hundido por completo.'],['Acceso al subnivel 2','Subnivel en producción: tronadura de anillos y carguío.'],['Acceso al subnivel 3','Subnivel en preparación: cruzados listos y anillos pre-perforados.'],['Acceso al subnivel 4','Subnivel en desarrollo: avance de la galería y de los cruzados.']];
+    A3TL.tl.filter(x=>x.stop!==undefined).forEach(x=>s.push([x.t0-0.6,txt[x.stop][0],txt[x.stop][1]]));
+    s.push([A3TL.dur-0.6,'Secuencia descendente','El método avanza de arriba hacia abajo: mientras un subnivel produce, los inferiores se preparan y desarrollan.']);return s})(),
+  setup(){},
+  update(t){
+    let u=1,stop=-1;for(const s of A3TL.tl){if(t>=s.t0&&t<s.t1){u=s.stop!==undefined?s.u0:lerp(s.u0,s.u1,(t-s.t0)/(s.t1-s.t0));stop=s.stop??-1;break}}
+    place(truck,PT,u);truck.userData.lb.visible=Math.floor(t*4)%2===0;
+    matRamp.emissiveIntensity=0.25+0.2*Math.sin(t*3);
+    let near=-1;STOPS.forEach((us,k)=>{if(Math.abs(u-us)<0.03)near=k});
+    matTun.forEach((m,k)=>m.emissive.setHex(k===near?0x8a5a00:0));
+  }};
+
+const OV={name:'Vista general',dur:Infinity,cam:{p:V(1.45,1.35,1.65),t:V(0,0.6,-0.05)},
+  steps:[[0,'Método de hundimiento por subniveles','Rampa en caja piso, subniveles con cruzados escalonados, abanicos de perforación y zona hundida encima. Elige una animación.']],
+  setup(){},update(){}};
+const ANIMS={ov:OV,a1:A1,a2:A2,a3:A3};
+
+/* ================= MOTOR ================= */
+let cur=OV,T=0,playing=true,speed=1,camTween=null,AR=false,lastStep=-1;
+const SPEEDS=[0.5,1,1.5];
+function startAnim(key){
+  cur=ANIMS[key];T=0;playing=true;lastStep=-1;resetScene();cur.setup();cur.update(0);
+  document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',b.dataset.a===key));
+  $('bPlay').textContent='Pausa';
+  if(!AR){userCam=false;controls.autoRotate=key==='ov';camTween={fp:camera.position.clone(),ft:controls.target.clone(),tp:cur.cam.p,tt:cur.cam.t,k:0}}
+}
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>startAnim(b.dataset.a));
+$('bPlay').onclick=()=>{if(cur.dur!==Infinity&&T>=cur.dur){startAnim(Object.keys(ANIMS).find(k=>ANIMS[k]===cur));return}playing=!playing;$('bPlay').textContent=playing?'Pausa':'Seguir'};
+$('bRe').onclick=()=>startAnim(Object.keys(ANIMS).find(k=>ANIMS[k]===cur));
+$('bSpd').onclick=()=>{speed=SPEEDS[(SPEEDS.indexOf(speed)+1)%SPEEDS.length];$('bSpd').textContent=speed+'x'};
+
+function caption(){
+  let si=0;cur.steps.forEach((s,i)=>{if(T>=s[0])si=i});
+  if(si!==lastStep){lastStep=si;const s=cur.steps[si];$('capStep').textContent=cur.dur===Infinity?'Vista general':`${cur.name} · paso ${si+1}/${cur.steps.length}`;$('capTitle').textContent=s[1];$('capText').textContent=s[2]}
+  $('prog').style.width=(cur.dur===Infinity?0:clamp(T/cur.dur,0,1)*100)+'%';
+  $('tm').textContent=cur.dur===Infinity?'':`${Math.min(T,cur.dur).toFixed(0)} / ${cur.dur.toFixed(0)} s`;
+}
+const clock=new THREE.Clock();const fv=new THREE.Vector3();
+function tick(){
+  const dt=Math.min(clock.getDelta(),0.05);
+  if(playing&&cur.dur!==Infinity){T+=dt*speed;if(T>=cur.dur){T=cur.dur;playing=false;$('bPlay').textContent='Repetir'}}
+  cur.update(T);caption();
+  if(!AR){
+    if(camTween){camTween.k=Math.min(1,camTween.k+dt/1.3);const k=sstep(camTween.k);camera.position.lerpVectors(camTween.fp,camTween.tp,k);controls.target.lerpVectors(camTween.ft,camTween.tt,k);if(camTween.k>=1)camTween=null}
+    else if(!userCam&&$('follow').checked&&(cur===A3)){truck.getWorldPosition(fv);controls.target.lerp(fv,0.06);camera.position.lerp(fv.clone().add(V(0.42,0.3,0.55)),0.04)}
+    controls.update();
+  }
+}
+renderer.setAnimationLoop(()=>{tick();renderer.render(scene,camera)});
+addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)});
+startAnim('ov');
+
+/* ================= MODO AR (MindAR) ================= */
+const ADJ_DEF={h:false,s:0.8,x:0,y:-0.28,z:0.44,r:0};
+let A=Object.assign({},ADJ_DEF);try{const s=JSON.parse(localStorage.getItem('slc-ar')||'null');if(s)A=Object.assign(A,s)}catch(e){}
+const ids={s:'adjS',x:'adjX',y:'adjY',z:'adjZ',r:'adjR'};
+function applyAdj(){
+  holder.rotation.set(A.h?Math.PI/2:0,0,0);adj.position.set(A.x,A.y,A.z);adj.scale.setScalar(A.s);adj.rotation.set(0,A.r*Math.PI/180,0);
+  $('adjH').checked=A.h;Object.entries(ids).forEach(([k,id])=>{const el=$(id);el.value=A[k];el.nextElementSibling.textContent=(+A[k]).toFixed(k==='r'?0:2)});
+  try{localStorage.setItem('slc-ar',JSON.stringify(A))}catch(e){}
+}
+Object.entries(ids).forEach(([k,id])=>$(id).oninput=e=>{A[k]=+e.target.value;applyAdj()});
+$('adjH').onchange=e=>{A.h=e.target.checked;if(A.h){A.y=0;A.z=0}else{A.y=-0.28;A.z=0.44}applyAdj()};
+$('adjReset').onclick=()=>{A=Object.assign({},ADJ_DEF);applyAdj()};
+
+$('bAR').onclick=async()=>{
+  if(AR){location.reload();return}
+  if(!(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia)){toast('Este navegador no da acceso a la cámara aquí. El modo AR funciona al abrir la página publicada (HTTPS) en Chrome de Android.');return}
+  try{const s=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}});s.getTracks().forEach(t=>t.stop())}
+  catch(e){toast('No hay permiso de cámara en esta vista. El modo AR funciona al abrir la página publicada en GitHub Pages desde el celular. Aquí puedes usar el demo 3D.');return}
+  $('bAR').textContent='Cargando…';
+  let mod;try{mod=await import('mindar-image-three')}catch(e){toast('No se pudo cargar MindAR (revisa la conexión).');$('bAR').textContent='Modo AR';return}
+  let src=CFG.targetExample;try{const r=await fetch(CFG.targetLocal,{method:'HEAD',cache:'no-store'});if(r.ok)src=CFG.targetLocal}catch(e){}
+  AR=true;document.body.classList.add('ar');renderer.setAnimationLoop(null);
+  const mind=new mod.MindARThree({container:$('ar-container'),imageTargetSrc:src});
+  const {renderer:r2,scene:s2,camera:c2}=mind;addLights(s2);
+  const anchor=mind.addAnchor(0);anchor.group.add(holder);
+  G.labels.visible=$('layers').querySelector('[data-l=labels]').checked;applyAdj();
+  anchor.onTargetFound=()=>{$('arStat').textContent='Marcador detectado'};anchor.onTargetLost=()=>{$('arStat').textContent='Buscando marcador…'};
+  $('bAR').textContent='Salir AR';$('bAdj').classList.remove('hidden');$('sub').textContent=src===CFG.targetLocal?'AR · enfoca el marcador':'AR · enfoca la imagen marcador';
+  try{await mind.start()}catch(e){toast('No se pudo iniciar la cámara: '+e.message);return}
+  r2.setAnimationLoop(()=>{tick();r2.render(s2,c2)});
+};
+applyAdj();holder.rotation.set(0,0,0);adj.position.set(0,0,0);adj.scale.setScalar(1);adj.rotation.set(0,0,0);
+</script>
+</body>
+</html>
